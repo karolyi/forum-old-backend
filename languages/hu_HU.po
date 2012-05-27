@@ -1,0 +1,41 @@
+# Hungarian translation for the forum engine.
+# Copyright (C) 2012
+# This file is distributed under the same license as the Forum package.
+# Laszlo Karolyi <laszlo@karolyi.hu>, 2012.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-05-27 18:38+0200\n"
+"PO-Revision-Date: 2012-05-27 12:53+0001\n"
+"Last-Translator: Laszlo Karolyi <laszlo@karolyi.hu>\n"
+"Language-Team: Hungarian <HU@li.org>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: js/app.js:134
+msgid "Loading, please wait ..."
+msgstr "Betöltés, várj ..."
+
+#: js/app.js:135
+msgid "Settings"
+msgstr "Beállítások"
+
+#: js/app.js:136
+#, fuzzy
+msgid "Topic list"
+msgstr "Témalista"
+
+#: api/Forum/Config/DefaultUserClass.inc.php:8
+msgid "<No name>"
+msgstr "<Nincs név>"
+
+#: api/Forum/LockClass.inc.php:29
+msgid "Timeout waiting for lock."
+msgstr "Időtúllépés a zárolásra várás közben."
+

@@ -1,0 +1,42 @@
+# English translations for PACKAGE package.
+# Copyright (C) 2012 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Charlie & <EMAIL@ADDRESS>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-05-27 18:38+0200\n"
+"PO-Revision-Date: 2012-05-27 15:18+0200\n"
+"Last-Translator: Charlie & <EMAIL@ADDRESS>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: js/app.js:134
+msgid "Loading, please wait ..."
+msgstr ""
+
+#: js/app.js:135
+msgid "Settings"
+msgstr ""
+
+#: js/app.js:136
+#, fuzzy
+msgid "Topic list"
+msgstr "Topic name"
+
+#: api/Forum/Config/DefaultUserClass.inc.php:8
+msgid "<No name>"
+msgstr "<No name>"
+
+#: api/Forum/LockClass.inc.php:29
+msgid "Timeout waiting for lock."
+msgstr "Timeout waiting for lock."
+
+#~ msgid "Please wait, loading ..."
+#~ msgstr "Please wait, loading ..."
