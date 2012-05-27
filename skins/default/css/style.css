@@ -9,7 +9,7 @@ body {
 #pageHolder {
   min-height: 100%;
   min-width: 100%;
-  background-color: #CCC;
+  background-color: #FFF;
   position: absolute;
   display: none;
 }
