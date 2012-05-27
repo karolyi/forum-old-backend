@@ -35,9 +35,9 @@ $forum->start();
         <select></select>
         </form>
       </div>
-      <div id="tabs">
+      <div id="mainTab">
         <ul>
-          <li><a href="#settingsTab" data-text="Settings"></a></li>
+          <li><a href="#settingsTab" data-text="Settings"></a> <span class="ui-icon ui-icon-close">Remove Tab</span></li>
           <li><a href="#topicListTab" data-text="Topic list"></a></li>
         </ul>
         <div id="settingsTab">

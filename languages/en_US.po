@@ -28,7 +28,7 @@ msgstr ""
 #: js/app.js:136
 #, fuzzy
 msgid "Topic list"
-msgstr "Topic name"
+msgstr "Topic list"
 
 #: api/Forum/Config/DefaultUserClass.inc.php:8
 msgid "<No name>"
