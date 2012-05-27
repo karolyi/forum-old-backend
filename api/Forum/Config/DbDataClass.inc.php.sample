@@ -1,0 +1,23 @@
+<?php
+namespace Forum\Config;
+
+class DbData {
+  // This class has readonly variables
+  private $host;
+  private $user;
+  private $pass;
+  private $name;
+  private $port;
+  function __construct() {
+    $this->host = 'localhost';
+    $this->user = 'forum';
+    $this->pass = 'password';
+    $this->name = 'forum';
+    $this->port = '27017';
+  }
+
+  function __get($name) {
+    return $this->$name;
+  }
+}
+?>

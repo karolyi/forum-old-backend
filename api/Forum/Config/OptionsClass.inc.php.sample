@@ -1,0 +1,43 @@
+<?php
+namespace Forum\Config;
+
+class Options {
+  private static $instance;
+  private function __construct() {
+    // Set to true when running in development mode
+    $this->testMode = True;
+
+    // The outer (not logged in) user id
+    $this->outerUserId = -1;
+
+    // Locking stuff
+    // The directory for lockfiles
+    $this->lockFileDir = $_SERVER['DOCUMENT_ROOT'] . '/api/Private/LockDir';
+    // The maximum time in millisecs to wait for a lock
+    $this->lockWaitMaxTime = 2000;
+    // Time between lock retry cycles in millisecs
+    $this->lockWaitCycleTime = 500;
+
+    // Settings of the session cookie, currently 5 years
+    $this->cookieLifeTime = 5 * 365 * 24 * 60 * 60;
+
+    // Logged in session lifetime
+    $this->innerSessionLifetime = 5 * 24 * 60 * 60;
+    // Not logged in session lifetime
+    $this->outerSessionLifetime = 5 * 24 * 60 * 60;
+    // Refresh time for logged-in session id
+    $this->refreshInnerSessionAfter = 1 * 24 * 60 * 60;
+    // Refresh time for not-logged-in session id
+    $this->refreshOuterSessionAfter = 1 * 24 * 60 * 60;
+    // The time after not-logged-in sesson numbers are freed
+    $this->releaseOuterIdAfter = 1 * 24 * 60 * 60;
+  }
+
+  public function getInstance() {
+    if (!self::$instance) {
+      self::$instance = new Options();
+    }
+    return self::$instance;
+  }
+}
+?>

@@ -1,0 +1,49 @@
+<?php
+namespace Forum\Config;
+
+class DefaultUser {
+  // De empty user class
+  function __construct() {
+    $this->id                   = null;
+    $this->name                 = _('<No name>');
+    $this->password             = null;
+    $this->votingValue          = '0';
+    $this->votingCount          = '0';
+    $this->voteLimit            = '-5';
+    $this->quote                = '';
+    $this->email                = '';
+    $this->regId                = '';
+    $this->maxPostsPerDay       = '0';
+    $this->sumComments          = '0';
+    $this->todayComments        = '0';
+    $this->yesterdayComments    = '0';
+    $this->invitations          = '0';
+    $this->inviterUserId        = '0';
+    $this->inviteSuccess        = '0';
+    $this->reminders            = '0';
+    $this->usedSkin             = 'default';
+    $this->ignoredUserIdArray   = array();
+    $this->introduction         = '';
+    $this->regIntroduction      = '';
+    $this->famIntroduction      = '';
+    $this->picemails            = '';
+
+    $this->settings['isAdmin']                  = false;
+    $this->settings['autoBookmarks']            = false;
+    $this->settings['mailsFromOwnTopic']        = false;
+    $this->settings['mailsFromReplies']         = true;
+    $this->settings['mailsFromModeration']      = true;
+    $this->settings['mailsFromMessages']        = true;
+    $this->settings['showAnswersAtComments']    = true;
+    $this->settings['showRelations']            = true;
+    $this->settings['isDisabled']               = false;
+    $this->settings['bookmarkedTopicsFirst']    = true;
+    $this->settings['showOutsiders']            = true;
+    $this->settings['showChat']                 = true;
+    $this->settings['activated']                = false;
+    $this->settings['approved']                 = false;
+    $this->settings['modalsOnly']               = true;
+    $this->settings['showArchiveTopics']        = false;
+  }
+}
+?>
