@@ -27,6 +27,7 @@ class DefaultUser {
     $this->regIntroduction      = '';
     $this->famIntroduction      = '';
     $this->picemails            = '';
+    $this->language             = 'hu_HU';
 
     $this->settings['isAdmin']                  = false;
     $this->settings['autoBookmarks']            = false;

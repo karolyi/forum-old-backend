@@ -21,7 +21,7 @@ class User extends \Forum\Config\DefaultUser {
     $this->name = $userArray['name'];
     $this->password = $userArray['password'];
     // Extended user data
-    $cursor = $this->db->userExtData->find(array('id' => $userId));
+    $cursor = $this->db->userExt->find(array('id' => $userId));
     $userArray = $cursor->getNext();
     unset($userArray['_id'], $userArray['id']);
     foreach ($userArray as $key => $value) {

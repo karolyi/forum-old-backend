@@ -31,6 +31,9 @@ class Options {
     $this->refreshOuterSessionAfter = 1 * 24 * 60 * 60;
     // The time after not-logged-in sesson numbers are freed
     $this->releaseOuterIdAfter = 1 * 24 * 60 * 60;
+
+    // Cache key, if you change it, every file in the client's local storage gets reloaded
+    $this->cacheKey = '123';
   }
 
   public function getInstance() {
