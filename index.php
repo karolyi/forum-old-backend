@@ -1,7 +1,7 @@
 <?php
 include_once('api/ForumClass.inc.php');
 $forum = new Forum();
-$forum->start();
+$forum->checkSession();
 ?>
 <!doctype html>
 <html>

@@ -10,7 +10,6 @@ class Session {
     $this->OUTER_SESSION = 1;
     $this->configOptions = \Forum\Config\Options::getInstance();
     $this->outerSessionLock = new \Forum\Lock('outerSession');
-    $this->innerSessionLock = new \Forum\Lock('innerSession');
   }
 
   /**
@@ -55,47 +54,39 @@ class Session {
 
   /**
    * Create a new not-logged-in session
-   *
-   * @return string New session id
    */
   function createOuter() {
     $this->outerSessionLock->acquire();
     $maxId = $this->getNewOuterId();
     $sessionId = md5(uniqid('', true));
-    $this->db->session->insert(array(
+    $this->currentArray = array(
       'lastActive' => new \MongoDate(),
       'createdAt' => new \MongoDate(),
       'ipAddress' => $_SERVER['REMOTE_ADDR'],
       'hostName' => gethostbyaddr($_SERVER['REMOTE_ADDR']),
       'sessionId' => $sessionId,
       'userId' => $maxId,
-      'type' => $this->OUTER_SESSION,
-    ), array('safe' => true));
+      'type' => $this->OUTER_SESSION);
+    $this->db->session->insert($this->currentArray, array('safe' => true));
     $this->outerSessionLock->release();
-    return $sessionId;
   }
 
   /**
    * Change session id for a session when older than a configured time, just for security reasons.
    * When not older, just update the lastActive value.
-   *
-   * @param array Old session record
-   *
-   * @return array New session record
    */
-  function update($sessionArray) {
-    $oldSessionId = $sessionArray['sessionId'];
-    if ($sessionArray['createdAt']->sec < time() - $this->configOptions->refreshInnerSessionAfter) {
-      $sessionArray['createdAt'] = new \MongoDate();
-      $sessionArray['sessionId'] = md5(uniqid('', true));
+  function update() {
+    $oldSessionId = $this->currentArray['sessionId'];
+    if ($this->currentArray['createdAt']->sec < time() - $this->configOptions->refreshInnerSessionAfter) {
+      $this->currentArray['createdAt'] = new \MongoDate();
+      $this->currentArray['sessionId'] = md5(uniqid('', true));
     }
-    $sessionArray['lastActive'] = new \MongoDate();
+    $this->currentArray['lastActive'] = new \MongoDate();
     $this->db->session->update(
       array('sessionId' => $oldSessionId),
-      $sessionArray,
+      $this->currentArray,
       array('safe' => true)
     );
-    return $sessionArray;
   }
 
   /**
@@ -104,22 +95,27 @@ class Session {
    *  @return array Logged in (true/false), session id, user object
    */
   function check() {
+    $valid = False;
     if (isset($_COOKIE['forumSessionId'])) {
       $cursor = $this->db->session->find(array('sessionId' => $_COOKIE['forumSessionId']))->limit(1);
       if ($cursor->count()) {
-        $sessionArray = $cursor->getNext();
-        if ($sessionArray['lastActive']->sec > time() - $this->configOptions->innerSessionLifetime && $sessionArray['ipAddress'] == $_SERVER['REMOTE_ADDR']) {
-          $sessionArray = $this->update($sessionArray);
-          $userId = $sessionArray['type'] == $this->OUTER_SESSION ? $this->configOptions->outerUserId : $sessionArray['userId'];
-          $userObj = new \Forum\User($userId);
-          return array(True, $sessionArray['sessionId'], $userObj);
+        $this->currentArray = $cursor->getNext();
+        if ($this->currentArray['lastActive']->sec > time() - $this->configOptions->innerSessionLifetime && $this->currentArray['ipAddress'] == $_SERVER['REMOTE_ADDR']) {
+          $this->update();
+          $valid = True;
         }
       }
     }
-    // Session does not exist or expired, create new one
-    $userObj = new \Forum\User($this->configOptions->outerUserId);
-    $sessionId = $this->createOuter();
-    return array(False, $sessionId, $userObj);
+    if ($valid) {
+      // Session valid
+      $userId = $this->currentArray['type'] == $this->OUTER_SESSION ? $this->configOptions->outerUserId : $this->currentArray['userId'];
+      $userObj = new \Forum\User($userId);
+    } else {
+      // Session does not exist or expired, create new one
+      $userObj = new \Forum\User($this->configOptions->outerUserId);
+      $this->createOuter();
+    }
+    return array($valid, $this->currentArray['sessionId'], $userObj);
   }
 
 }

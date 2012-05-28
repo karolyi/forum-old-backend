@@ -6,7 +6,8 @@ class Lock {
     $this->lockName = $lockName;
     $this->configOptions = \Forum\Config\Options::getInstance();
     $this->lockFileName = $this->configOptions->lockFileDir . '/' . $this->lockName;
-    touch($this->lockFileName);
+    if (!file_exists($this->lockFileName))
+      touch($this->lockFileName);
   }
 
   function acquire() {

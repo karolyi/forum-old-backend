@@ -114,34 +114,10 @@ Forum.widget.Base = function() {
 
 // FIXME
 Forum.widget.TopicList = function(){
+  this.init = function() {
+  }
 };
 Forum.widget.TopicList.prototype = new Forum.widget.Base();
-
-Forum.MassLoader = function(options) {
-  var instance = this;
-  this.load = function(filesArray, readyCallback) {
-    this.filesArray = new Array();
-    this.readyCallback = readyCallback;
-    for (element = 0; element < filesArray.length; element++)
-      this.filesArray.push(filesArray[element]);
-    for (element = 0; element < filesArray.length; element++) {
-      Forum.storage.load(
-        filesArray[element],
-        this.loadCallback
-      );
-    }
-  };
-
-  this.loadCallback = function(file) {
-    instance.filesArray.pop(instance.filesArray.indexOf(file));
-    //console.log(instance.filesArray.length);
-    if (!instance.filesArray.length) {
-      // All loading finished, call the readyCallback
-      instance.readyCallback()
-    }
-  };
-  this.load(options['filesArray'], options['readyCallback']);
-}
 
 Forum.loader = {
   show: function() {
@@ -156,7 +132,7 @@ Forum.loader = {
 
 Forum.gui = {
   languageHookObj: new Object(),
-  tabList: { 
+  tabList: {
     'settingsTab': null,
     'topicListTab': null,
   },
