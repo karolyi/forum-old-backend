@@ -11,8 +11,10 @@ class Forum {
 
   function checkSession() {
     $oldSessionId = isset($_COOKIE['forumSessionId']) ? $_COOKIE['forumSessionId'] : null;
-    $this->session = new Forum\Session();
-    list($loggedIn, $sessionId, $this->currentUser) = $this->session->check();
+    $this->session = \Forum\Session::getInstance();
+    $this->currentUser = new Forum\User($this->session->getUserId());
+
+    $sessionId = $this->session->getId();
     if ($oldSessionId != $sessionId) {
       // Set new cookie
       setcookie('forumSessionId', $sessionId, time() + $this->configOptions->cookieLifeTime, '/');

@@ -29,6 +29,7 @@ class DefaultUser {
     $this->picemails            = '';
     $this->language             = 'hu_HU';
 
+    $this->settings                             = array();
     $this->settings['isAdmin']                  = false;
     $this->settings['autoBookmarks']            = false;
     $this->settings['mailsFromOwnTopic']        = false;

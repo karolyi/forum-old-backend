@@ -2,7 +2,9 @@
 namespace Forum;
 
 class Session {
-  function __construct() {
+  private static $instance;
+
+  private function __construct() {
     $this->db = Db::getInstance();
     $this->NOT_AUTHENTICATED = 0;
     $this->AUTH_SUCCESS = 1;
@@ -10,6 +12,28 @@ class Session {
     $this->OUTER_SESSION = 1;
     $this->configOptions = \Forum\Config\Options::getInstance();
     $this->outerSessionLock = new \Forum\Lock('outerSession');
+
+    // Check the session at creating the singleton instance
+    $valid = False;
+    if (isset($_COOKIE['forumSessionId'])) {
+      $cursor = $this->db->session->find(array('sessionId' => $_COOKIE['forumSessionId']))->limit(1);
+      if ($cursor->count()) {
+        $this->currentArray = $cursor->getNext();
+        if ($this->currentArray['lastActive']->sec > time() - $this->configOptions->innerSessionLifetime && $this->currentArray['ipAddress'] == $_SERVER['REMOTE_ADDR']) {
+          $this->update();
+          $valid = True;
+        }
+      }
+    }
+    if (!$valid)
+      $this->createOuter();
+  }
+
+  public static function getInstance() {
+    if (!self::$instance) {
+      self::$instance = new \Forum\Session();
+    }
+    return self::$instance;
   }
 
   /**
@@ -96,28 +120,36 @@ class Session {
    */
   function check() {
     $valid = False;
-    if (isset($_COOKIE['forumSessionId'])) {
-      $cursor = $this->db->session->find(array('sessionId' => $_COOKIE['forumSessionId']))->limit(1);
-      if ($cursor->count()) {
-        $this->currentArray = $cursor->getNext();
-        if ($this->currentArray['lastActive']->sec > time() - $this->configOptions->innerSessionLifetime && $this->currentArray['ipAddress'] == $_SERVER['REMOTE_ADDR']) {
-          $this->update();
-          $valid = True;
-        }
-      }
-    }
     if ($valid) {
       // Session valid
       $userId = $this->currentArray['type'] == $this->OUTER_SESSION ? $this->configOptions->outerUserId : $this->currentArray['userId'];
-      $userObj = new \Forum\User($userId);
     } else {
       // Session does not exist or expired, create new one
       $userObj = new \Forum\User($this->configOptions->outerUserId);
-      $this->createOuter();
     }
     return array($valid, $this->currentArray['sessionId'], $userObj);
   }
 
+  /*
+   * Get the user id of the current session
+   *
+   * @return integer User id of session
+   */
+  function getUserId() {
+    $userId = $this->currentArray['userId'];
+    if ($this->currentArray['type'] == $this->OUTER_SESSION)
+      $userId = $this->configOptions->outerUserId;
+    return $userId;
+  }
+
+  /**
+   * Get the current session id
+   *
+   * @return string The session id
+   */
+  function getId() {
+    return $this->currentArray['sessionId'];
+  }
 }
 
 ?>

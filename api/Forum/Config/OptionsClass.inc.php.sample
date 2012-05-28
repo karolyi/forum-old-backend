@@ -32,8 +32,13 @@ class Options {
     // The time after not-logged-in sesson numbers are freed
     $this->releaseOuterIdAfter = 1 * 24 * 60 * 60;
 
-    // Cache key, if you change it, every file in the client's local storage gets reloaded
-    $this->cacheKey = '123';
+    // Cache key, if you change it, every file in the clients local storage gets reloaded
+    $this->cacheKey = '12';
+    // Available languages
+    $this->languageArray = array(
+      'hu_HU' => 'Magyar',
+      'en_US' => 'English',
+    );
   }
 
   public function getInstance() {

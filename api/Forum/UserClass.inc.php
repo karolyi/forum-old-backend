@@ -9,7 +9,7 @@ class User extends \Forum\Config\DefaultUser {
     // Call with empty parameter for a skeleton, otherwise with a userId
     $this->configOptions = \Forum\Config\Options::getInstance();
     $this->id = $userId;
-    $this->db = Db::getInstance();
+    $this->db = \Forum\Db::getInstance();
     if ($userId and $userId != $this->configOptions->outerUserId)
       $this->getById($userId);
   }
