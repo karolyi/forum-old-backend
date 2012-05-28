@@ -11,10 +11,9 @@ class Forum {
 
   function checkSession() {
     $oldSessionId = isset($_COOKIE['forumSessionId']) ? $_COOKIE['forumSessionId'] : null;
-    $this->session = \Forum\Session::getInstance();
-    $this->currentUser = new Forum\User($this->session->getUserId());
+    $sessionObj = \Forum\Session::getInstance();
 
-    $sessionId = $this->session->getId();
+    $sessionId = $sessionObj->getId();
     if ($oldSessionId != $sessionId) {
       // Set new cookie
       setcookie('forumSessionId', $sessionId, time() + $this->configOptions->cookieLifeTime, '/');
@@ -27,6 +26,8 @@ class Forum {
     // Remove the '' and the 'api' from the beginning of the array
     array_shift($requestArray);
     array_shift($requestArray);
+    header('Content-Type: application/json');
+    #header('Content-Type: application/json; charset=utf-8');
     if ($requestArray[0] == 'topic') {
       if (isset($requestArray[1])) {
         var_dump($requestArray[1]);

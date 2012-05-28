@@ -2,7 +2,7 @@
 namespace Forum\Config;
 
 class DefaultUser {
-  // De empty user class
+  // The empty user class
   function __construct() {
     $this->id                   = null;
     $this->name                 = _('<No name>');
@@ -45,7 +45,7 @@ class DefaultUser {
     $this->settings['activated']                = false;
     $this->settings['approved']                 = false;
     $this->settings['modalsOnly']               = true;
-    $this->settings['showArchiveTopics']        = false;
+    $this->settings['showArchivedTopics']        = false;
   }
 }
 ?>

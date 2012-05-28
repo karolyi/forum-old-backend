@@ -3,6 +3,7 @@ namespace Forum;
 
 class Session {
   private static $instance;
+  private $currentArray;
 
   private function __construct() {
     $this->db = Db::getInstance();

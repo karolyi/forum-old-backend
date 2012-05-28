@@ -115,6 +115,7 @@ Forum.widget.Base = function() {
 // FIXME
 Forum.widget.TopicList = function(){
   this.init = function() {
+
   }
 };
 Forum.widget.TopicList.prototype = new Forum.widget.Base();
