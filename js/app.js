@@ -1,5 +1,5 @@
-var Forum = new Object(), f = Forum;
-Forum.widget = new Object;
+var Forum = {}, f = Forum;
+Forum.widget = {};
 Forum.settings = {
   cacheKey: '',
   displayLanguage: '',
@@ -8,94 +8,56 @@ Forum.settings = {
 Forum.storage = {
   _storage: new Object(),
 
-  set: function(key, value, callback) {
+  deferObj: function(key) {
+    // Function for loading files when not in local storage or in the variable scope
+    var dfd = $.Deferred();
+    var key;
+
+    this.load = function(key) {
+      $.ajax({
+        url: key,
+        success: this.setKey
+      });
+      this.key = key;
+      return dfd.promise();
+    };
+
+    this.setKey = function(data, textStatus, jqXHR) {
+      Forum.storage.set(key, data);
+      dfd.resolve(data);
+    };
+
+    return this.load(key);
+  },
+
+  set: function(key, value) {
     Forum.storage._storage[key] = value;
-    if (typeof(callback) == 'object') {
-      var functionObj = callback['functionObj'];
-      var options = callback['options'];
-      if (functionObj)
-        functionObj(options);
-    }
+    $.jStorage.set(key, value);
   },
 
   get: function(key) {
-    return Forum.storage._storage[key];
+    var value = Forum.storage._storage[key];
+    if (!value)
+      value = $.jStorage.get(key);
+    return value;
   },
 
-  load: function(options) {
-    var key = options['key'];
-    var callback = options['callback'];
-    if (!Forum.storage._storage[key]) {
+  getDeferred: function(key) {
+    var value = Forum.storage._storage[key];
+    if (!value) {
       // Key does not exist, load from local storage
       var value = $.jStorage.get(key);
       if (value) {
         // console.log('key in local storage');
-        Forum.storage.set(key, value, callback);
+        Forum.storage.set(key, value);
       } else {
         // Key not in local storage, load from server
-        $.ajax(key, {
-          success: function(data, textStatus, jqXHR) {
-            // Add in local storage too
-            // console.log('key on server');
-            $.jStorage.set(key, data);
-            Forum.storage.set(key, data, callback);
-          },
-        });
-      }
-    } else {
-      // Key already in cache, just execute the callback
-      // console.log('key in client');
-      if (typeof(callback) == 'object') {
-        var functionObj = callback['functionObj'];
-        var options = callback['options'];
-        if (functionObj)
-          functionObj(options);
+        return this.deferObj(key);
       }
     }
+    return $.Deferred().resolve(value);
   },
 };
-
-Forum.MassExecuter = function(funcArray, readyCallback) {
-  var instance = this;
-  this.init = function(funcArray, readyCallback) {
-    this.funcArray = new Array();
-    this.readyCallback = readyCallback;
-
-    count = 0;
-    for (element in funcArray) {
-        funcArray[element]['funcNumber'] = count;
-        this.funcArray.push(count);
-        count++;
-    }
-
-    for (element in funcArray) {
-      // Setup the function call
-      var funcNumber = funcArray[element]['funcNumber'];
-      var functionObj = funcArray[element]['run'];
-      var options = funcArray[element]['options'];
-      options['callback'] = {
-        functionObj: this.oneFinishCallback,
-        options: {
-          funcNumber: funcNumber,
-          scope: this,
-        },
-      }
-      functionObj(options);
-    }
-  };
-
-  this.oneFinishCallback = function(options) {
-    var scope = options['scope'];
-    scope.funcArray.pop(scope.funcArray.indexOf(options['funcNumber']))
-    if (!scope.funcArray.length) {
-      // All loading finished, call the readyCallback
-      scope.readyCallback()
-    }
-  };
-  
-  this.init(funcArray, readyCallback);
-}
-
 
 Forum.widget.Base = function() {
   this.init = function() {
@@ -110,12 +72,12 @@ Forum.widget.Base = function() {
       functionObj(options);
     }
   };
-};
+}
 
 // FIXME
 Forum.widget.TopicList = function(){
   this.init = function() {
-
+    Forum.gui.initTexts();
   }
 };
 Forum.widget.TopicList.prototype = new Forum.widget.Base();
@@ -138,25 +100,17 @@ Forum.gui = {
     'topicListTab': null,
   },
 
-  start: function() {
+  init: function() {
     if ($.jStorage.get('cacheKey') != Forum.settings.cacheKey) {
       $.jStorage.flush();
       $.jStorage.set('cacheKey', Forum.settings.cacheKey);
     }
-    new Forum.MassExecuter([
-      {
-        run: Forum.storage.load,
-        options: {
-          key: '/languages/' + Forum.settings.displayLanguage + '.json'
-        },
-      },
-      {
-        run: Forum.storage.load,
-        options: {
-          key: '/html/topicGroup.html'
-        },
-      },
-    ], Forum.gui.launch);
+    $.when(
+      Forum.storage.getDeferred('/languages/' + Forum.settings.displayLanguage + '.json'),
+      Forum.storage.getDeferred('/html/topicGroup.html')
+    ).then(function(res1, res2) {
+      Forum.gui.launch();
+    });
   },
 
   closeTab: function(tabName) {
@@ -205,20 +159,16 @@ Forum.gui = {
 
   changeLanguage: function() {
     Forum.settings.displayLanguage = $('#languageSelectorForm > select').val();
-    new Forum.MassExecuter([
-      {
-        run: Forum.storage.load,
-        options: {
-          key: '/languages/' + Forum.settings.displayLanguage + '.json'
-        },
-      },
-    ], function() {
+    var localeUrl = '/languages/' + Forum.settings.displayLanguage + '.json';
+    $.when(
+      Forum.storage.getDeferred(localeUrl)
+    ).then(function(localeData) {
       Forum.gettext = new Gettext({
         domain: Forum.settings.displayLanguage,
-        locale_data: JSON.parse(Forum.storage.get('/languages/' + Forum.settings.displayLanguage + '.json'))
+        locale_data: JSON.parse(localeData)
       });
       Forum.gui.initTexts();
-    })
+    });
   },
 
   initTexts: function () {
@@ -232,4 +182,4 @@ Forum.gui = {
 
 var _ = $.noop;
 
-$(document).ready(Forum.gui.start);
+$(document).ready(Forum.gui.init);

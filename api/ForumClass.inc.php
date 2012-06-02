@@ -28,8 +28,13 @@ class Forum {
     array_shift($requestArray);
     header('Content-Type: application/json');
     #header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-cache, must-revalidate');
+    header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+    header('Pragma: no-cache');
+    header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
     if ($requestArray[0] == 'topic') {
-      if (isset($requestArray[1])) {
+      if (isset($requestArray[1]) && $requestArray[1] != '') {
         var_dump($requestArray[1]);
         // Show the comments page
       } else {
