@@ -4,6 +4,7 @@ $forum = new \Forum();
 $forum->checkSession();
 $sessionObj = \Forum\Session::getInstance();
 $currentUser = \Forum\User::getById($sessionObj->getUserId());
+$dateTimeZoneObj = new DateTimeZone(ini_get('date.timezone'));
 ?>
 <!doctype html>
 <html>
@@ -15,11 +16,15 @@ $currentUser = \Forum\User::getById($sessionObj->getUserId());
     <script type="text/javascript" src="/js/jstorage/jstorage.min.js"></script>
     <script type="text/javascript" src="/js/json/json2.js"></script>
     <script type="text/javascript" src="/js/jsgettext/Gettext.js"></script>
+    <script type="text/javascript" src="/js/sprintf.js"></script>
+    <script type="text/javascript" src="/js/date.format.js"></script>
     <script type="text/javascript" src="/js/app.js"></script>
     <script type="text/javascript">
       Forum.settings.displayLanguage = '<?php print $currentUser->getLanguage()?>';
       Forum.settings.cacheKey = '<?php print $forum->configOptions->cacheKey?>';
       Forum.settings.languageObj = <?php print json_encode($forum->configOptions->languageArray)?>;
+      Forum.settings.usedSkin = '<?php print $currentUser->getUsedSkin()?>';
+      Forum.settings.timeZoneDiff = <?php print $dateTimeZoneObj->getOffset(new DateTime('now', new DateTimeZone('GMT'))) / 60?>;
     </script>
     <link rel="stylesheet" href="/skins/<?php print $currentUser->getUsedSkin()?>/css/style.css" type="text/css" />
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" type="text/css" />

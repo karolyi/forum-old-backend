@@ -5,3 +5,4 @@ cd $DIR
 
 msgmerge -v -U languages/hu_HU.po languages/messages.pot
 msgmerge -v -U languages/en_US.po languages/messages.pot
+msgmerge -v -U languages/fr_FR.po languages/messages.pot

@@ -44,7 +44,7 @@ class User {
     // Extended user data
     $cursor = $this->db->userExt->find(array('id' => $this->id));
     $userArray = $cursor->getNext();
-    var_dump($this->id);
+    // var_dump($this->id);
     unset($userArray['_id'], $userArray['id']);
     foreach ($userArray as $key => $value) {
       $this->$key = $value;
@@ -144,6 +144,15 @@ class User {
    */
   function getUsedSkin() {
     return $this->getValue('usedSkin');
+  }
+
+  /**
+   * Get the quote of the user
+   *
+   * @return string The quote of the user
+   */
+  function getQuote() {
+    return $this->getValue('quote');
   }
 }
 ?>

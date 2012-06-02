@@ -36,19 +36,40 @@ class TopicWorker {
     );
     $cursor = $this->db->topicData->find($searchArray, $fieldsToShow)->sort(array('currCommentTime' => -1));
     $responseArray = array(
-      'normal' => array(),
-      'highlighted' => array(),
-      'archived' => array(),
+      'topicNormal' => array(),
+      'topicHighlighted' => array(),
+      'topicArchived' => array(),
+      'topicBookmarked' => array(),
+      'topicNotBookmarked' => array(),
     );
     foreach($cursor as $value) {
       unset($value['_id']);
       if ($value['status'] == $this->TOPIC_NORMAL)
-        $responseArray['normal'][] = $value;
+        $responseArray['topicNormal'][] = $this->_prepareResultRow($value);
       if ($value['status'] == $this->TOPIC_HIGHLIGHTED)
-        $responseArray['highlighted'][] = $value;
+        $responseArray['topicHighlighted'][] = $this->_prepareResultRow($value);
       if ($value['status'] == $this->TOPIC_ARCHIVED)
-        $responseArray['archived'][] = $value;
+        $responseArray['topicArchived'][] = $this->_prepareResultRow($value);
     }
     print json_encode($responseArray);
+  }
+
+  /**
+   * Prepare a result row for sending
+   *
+   * @param array A topic result row
+   *
+   * @return array The prepared array
+   */
+  function _prepareResultRow($row) {
+    $userId = $row['currCommentOwnerId'];
+    $userObj = \Forum\User::getById($userId);
+    $row['currCommentUser'] = array(
+      'id' => $userId,
+      'name' => $userObj->getName(),
+      'quote' => $userObj->getQuote()
+    );
+    unset($row['currCommentOwnerId']);
+    return $row;
   }
 }

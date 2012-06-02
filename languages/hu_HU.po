@@ -3,13 +3,13 @@
 # This file is distributed under the same license as the Forum package.
 # Laszlo Karolyi <laszlo@karolyi.hu>, 2012.
 #
-#, fuzzy
+#: js/app.js:252
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-27 18:38+0200\n"
-"PO-Revision-Date: 2012-05-27 12:53+0001\n"
+"POT-Creation-Date: 2012-06-02 22:58+0200\n"
+"PO-Revision-Date: 2012-06-02 18:54+0100\n"
 "Last-Translator: Laszlo Karolyi <laszlo@karolyi.hu>\n"
 "Language-Team: Hungarian <HU@li.org>\n"
 "Language: hu\n"
@@ -18,15 +18,267 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: js/app.js:134
+#: js/app.js:74 js/app.js:85
+msgid "January"
+msgstr "január"
+
+#: js/app.js:74 js/app.js:85
+msgid "February"
+msgstr "február"
+
+#: js/app.js:74 js/app.js:85
+msgid "March"
+msgstr "március"
+
+#: js/app.js:74 js/app.js:85
+msgid "April"
+msgstr "április"
+
+#: js/app.js:74 js/app.js:85
+msgid "May"
+msgstr "május"
+
+#: js/app.js:74 js/app.js:85
+msgid "June"
+msgstr "június"
+
+#: js/app.js:74 js/app.js:85
+msgid "July"
+msgstr "július"
+
+#: js/app.js:74 js/app.js:85
+msgid "August"
+msgstr "augusztus"
+
+#: js/app.js:74 js/app.js:85
+msgid "September"
+msgstr "Szeptember"
+
+#: js/app.js:74 js/app.js:85
+msgid "October"
+msgstr "október"
+
+#: js/app.js:74 js/app.js:85
+msgid "November"
+msgstr "november"
+
+#: js/app.js:74 js/app.js:85
+msgid "December"
+msgstr "december"
+
+#: js/app.js:75 js/app.js:81
+msgid "Sunday"
+msgstr "Vasárnap"
+
+#: js/app.js:75 js/app.js:81
+msgid "Monday"
+msgstr "Hétfő"
+
+#: js/app.js:75 js/app.js:81
+msgid "Tuesday"
+msgstr "Kedd"
+
+#: js/app.js:75 js/app.js:81
+msgid "Wednesday"
+msgstr "Szerda"
+
+#: js/app.js:75 js/app.js:81
+msgid "Thursday"
+msgstr "Csütörtök"
+
+#: js/app.js:75 js/app.js:81
+msgid "Friday"
+msgstr "Péntek"
+
+#: js/app.js:75 js/app.js:81
+msgid "Saturday"
+msgstr "Szombat"
+
+#: js/app.js:80
+#, fuzzy
+msgid "Sun"
+msgstr "Vas"
+
+#: js/app.js:80
+#, fuzzy
+msgid "Mon"
+msgstr "Hét"
+
+#: js/app.js:80
+#, fuzzy
+msgid "Tue"
+msgstr "Ked"
+
+#: js/app.js:80
+msgid "Wed"
+msgstr "Sze"
+
+#: js/app.js:80
+msgid "Thu"
+msgstr "Csü"
+
+#: js/app.js:80
+#, fuzzy
+msgid "Fri"
+msgstr "Pén"
+
+#: js/app.js:80
+msgid "Sat"
+msgstr "Szo"
+
+#: js/app.js:84
+#, fuzzy
+msgid "Jan"
+msgstr "Jan"
+
+#: js/app.js:84
+msgid "Feb"
+msgstr "Feb"
+
+#: js/app.js:84
+#, fuzzy
+msgid "Mar"
+msgstr "Már"
+
+#: js/app.js:84
+#, fuzzy
+msgid "Apr"
+msgstr "Ápr"
+
+#: js/app.js:84
+msgid "May_short"
+msgstr "Máj"
+
+#: js/app.js:84
+#, fuzzy
+msgid "Jun"
+msgstr "Jún"
+
+#: js/app.js:84
+#, fuzzy
+msgid "Jul"
+msgstr "Júl"
+
+#: js/app.js:84
+#, fuzzy
+msgid "Aug"
+msgstr "Aug"
+
+#: js/app.js:84
+msgid "Sep"
+msgstr "Szep"
+
+#: js/app.js:84
+#, fuzzy
+msgid "Oct"
+msgstr "Okt"
+
+#: js/app.js:84
+msgid "Nov"
+msgstr "Nov"
+
+#: js/app.js:84
+msgid "Dec"
+msgstr "Dec"
+
+#: js/app.js:121
+msgid "dddd, mmmm dd, yyyy, HH:MM:ss Zo"
+msgstr "dddd, yyyy. mmmm d, HH:MM:ss Zo"
+
+#: js/app.js:129
+#, fuzzy
+msgid "less then a minute ago"
+msgstr "kevesebb mint egy perce"
+
+#: js/app.js:131
+#, fuzzy, python-format
+msgid "%d minutes ago"
+msgid_plural "%s minutes ago"
+msgstr[0] "%d perce"
+msgstr[1] "%d perce"
+
+#: js/app.js:133
+msgid "about an hour ago"
+msgstr "egy órája"
+
+#: js/app.js:137
+#, fuzzy, python-format
+msgid "%d hours ago"
+msgid_plural "%s hours ago"
+msgstr[0] "%d órája"
+msgstr[1] "%d órája"
+
+#: js/app.js:140
+msgid "\"Yesterday at\" H:MM"
+msgstr "\"tegnap,\" H:MM"
+
+#: js/app.js:142
+msgid "ddd \"at\" H:MM"
+msgstr "ddd, H:MM"
+
+#: js/app.js:144
+msgid "mmm d \"at\" H:MM"
+msgstr "mmm d., H:MM"
+
+#: js/app.js:145
+msgid "mmmm d, yyyy"
+msgstr "yyyy. mmmm d."
+
+#: js/app.js:242
+#, fuzzy
+msgid "Reload topic list"
+msgstr "Témalista újratöltése"
+
+#: js/app.js:243
+msgid "Highlighted topics"
+msgstr "Kiemelt témák"
+
+#: js/app.js:244
+msgid "Normal topics"
+msgstr "Normál témák"
+
+#: js/app.js:245
+msgid "Bookmarked topics"
+msgstr "Könyvjelzős témák"
+
+#: js/app.js:246
+msgid "Not bookmarked topics"
+msgstr "Nem könyvjelzős témák"
+
+#: js/app.js:247
+msgid "Archived topics"
+msgstr "Archivált témák"
+
+#: js/app.js:248
+#, fuzzy
+msgid "Topic name"
+msgstr "Téma neve"
+
+#: js/app.js:249
+msgid "Comment count"
+msgstr "Hozzászólások száma"
+
+#: js/app.js:250
+msgid "Last comment time"
+msgstr "Utolsó hozzászólás"
+
+#: js/app.js:251
+msgid "Last commenter name"
+msgstr "Utolsó hozzászóló"
+
+#: js/app.js:295
+msgid "Close tab"
+msgstr "Fül bezárása"
+
+#: js/app.js:326
 msgid "Loading, please wait ..."
 msgstr "Betöltés, várj ..."
 
-#: js/app.js:135
+#: js/app.js:327
 msgid "Settings"
 msgstr "Beállítások"
 
-#: js/app.js:136
+#: js/app.js:328
 #, fuzzy
 msgid "Topic list"
 msgstr "Témalista"
@@ -35,7 +287,6 @@ msgstr "Témalista"
 msgid "<No name>"
 msgstr "<Nincs név>"
 
-#: api/Forum/LockClass.inc.php:29
+#: api/Forum/LockClass.inc.php:30
 msgid "Timeout waiting for lock."
 msgstr "Időtúllépés a zárolásra várás közben."
-

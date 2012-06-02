@@ -4,7 +4,10 @@ Forum.settings = {
   cacheKey: '',
   displayLanguage: '',
   languageObj: {},
+  usedSkin: '',
+  timeZoneDiff: 0,
 };
+
 Forum.storage = {
   _storage: new Object(),
 
@@ -59,28 +62,195 @@ Forum.storage = {
   },
 };
 
-Forum.widget.Base = function() {
-  this.init = function() {
-    this.options = options;
-  };
+Forum.date = {
+  monthNames: new Array(),
+  dayNames: new Array(),
+  _currTime: 0,
+  _timeZoneSecsDiff: 0,
+  _unixTimes: {},
+  _updateTimeoutId: null,
 
-  this.ready = function() {
-    if (this.options['callback']) {
-      // Call the ready callback
-      var functionObj = this.options['callback']['functionObj'];
-      var options = this.options['callback']['options'];
-      functionObj(options);
+  init: function() {
+    // console.log((new Date()).getTimezoneOffset());
+    this.monthNames = [_('January'), _('February'), _('March'), _('April'), _('May'), _('June'), _('July'), _('August'), _('September'), _('October'), _('November'), _('December')];
+    this.dayNames = [_('Sunday'), _('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday')];
+    var myTimeZone = (new Date()).getTimezoneOffset();
+    this._timeZoneSecsDiff = (myTimeZone + Forum.settings.timeZoneDiff) * 60;
+    dateFormat.i18n = {
+      dayNames: [
+        _("Sun"), _("Mon"), _("Tue"), _("Wed"), _("Thu"), _("Fri"), _("Sat"),
+        _('Sunday'), _('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday')
+      ],
+      monthNames: [
+        _("Jan"), _("Feb"), _("Mar"), _("Apr"), _("May_short"), _("Jun"), _("Jul"), _("Aug"), _("Sep"), _("Oct"), _("Nov"), _("Dec"),
+        _('January'), _('February'), _('March'), _('April'), _('May'), _('June'), _('July'), _('August'), _('September'), _('October'), _('November'), _('December')
+      ]
+    };
+    this.doUpdate();
+  },
+
+  calculateUnixTimes: function() {
+    var nowDate = new Date();
+    this._unixTimes['currTime'] = nowDate;
+    this._unixTimes['thisYearBegin'] = new Date(nowDate.getFullYear(), 0, 1, 0, 0, 0);
+    this._unixTimes['todayBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0, 0);
+    this._unixTimes['yesterdayBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() - 1, 0, 0, 0);
+    this._unixTimes['fourDaysBeforeBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() - 3, 0, 0, 0);
+    for (key in this._unixTimes)
+      this._unixTimes[key] = Math.floor(this._unixTimes[key].getTime() / 1000);
+  },
+
+  doUpdate: function() {
+    if (Forum.date._updateTimeoutId)
+      clearTimeout(Forum.date._updateTimeoutId);
+    var nowDate = new Date();
+    var nextMinute = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), nowDate.getMinutes(), 60);
+    var millisecs = nextMinute - nowDate;
+    Forum.date._updateTimeoutId = setTimeout('Forum.date.doUpdate()', millisecs + 500); // Plus 500 for safety
+    Forum.date.calculateUnixTimes();
+    $('[data-time]').each(Forum.date.updateOneElement);
+  },
+
+  longDate:function(time) {
+    var thatTime = (new Date()).setTime(time * 1000);
+    return dateFormat(thatTime, _('dddd, mmmm dd, yyyy, HH:MM:ss Zo'))
+  },
+
+  shortDate: function(time) {
+    var timeWithTimeZone = time + this._timeZoneSecsDiff; // Can be that its a subtraction, really
+    var difference = this._unixTimes['currTime'] - timeWithTimeZone;
+    var thatTime = (new Date()).setTime(time * 1000);
+    if (difference < 60)
+      return _('less then a minute ago');
+    if (difference < 3600)
+      return sprintf(Forum.gettext.ngettext('%d minutes ago', '%s minutes ago'), Math.floor(difference / 60));
+    if (difference > 3600 && difference < 7200)
+      return _('about an hour ago');
+    if (timeWithTimeZone > this._unixTimes['todayBegin']) {
+      // Calculate hours difference
+      var hourValue = Math.floor((this._unixTimes['currTime'] - timeWithTimeZone) / 3600);
+      return sprintf(Forum.gettext.ngettext('%d hours ago', '%s hours ago', hourValue), hourValue);
     }
-  };
+    if (timeWithTimeZone > this._unixTimes['yesterdayBegin'])
+      return dateFormat(thatTime, _('"Yesterday at" H:MM'));
+    if (timeWithTimeZone > this._unixTimes['fourDaysBeforeBegin'])
+      return dateFormat(thatTime, _('ddd "at" H:MM'));
+    if (timeWithTimeZone > this._unixTimes['thisYearBegin'])
+      return dateFormat(thatTime, _('mmm d "at" H:MM'));
+    return dateFormat(thatTime, _('mmmm d, yyyy'));
+  },
+
+  updateOneElement: function(key, element) {
+    element = $(element);
+    var time = element.data('time');
+    var shortDate = Forum.date.shortDate(time);
+    var longDate = Forum.date.longDate(time);
+    element.html(shortDate);
+    element.data('mouseover', longDate)
+  },
+
+  updateDomPart: function(domRoot) {
+    if (!domRoot)
+      var domRoot = $(document);
+    this.calculateUnixTimes();
+    domRoot.find('[data-time]').each(Forum.date.updateOneElement);
+  },
 }
 
-// FIXME
-Forum.widget.TopicList = function(){
-  this.init = function() {
-    Forum.gui.initTexts();
-  }
+Forum.widget.TopicList = function(options){
+  var domRoot;
+  var frameTemplate, topicGroupTemplate, topicElementTemplate, topicPageTemplate, topicUserTemplate;
+  this.init = function(options) {
+    try {
+      domRoot = options['domRoot'];
+    } catch (err) {
+      domRoot = $(document);
+    }
+    if (!Forum.gui._languageHookObj['TopicList'])
+      Forum.gui._languageHookObj['TopicList'] = initTexts;
+    $.when(
+      $.ajax({
+        url: '/api/topic',
+        dataType: 'json',
+      }),
+      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/topicGroupTemplate.html'),
+      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/topicPageTemplate.html'),
+      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/topicElementTemplate.html'),
+      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/frameTemplate.html'),
+      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/topicUserTemplate.html')
+    ).then(function(data, res1, res2, res3, res4, res5) {
+      topicGroupTemplate = res1;
+      topicPageTemplate = res2;
+      topicElementTemplate = res3;
+      frameTemplate = res4;
+      topicUserTemplate = res5;
+      initTopics(data[0]);
+    });
+  };
+
+  var parseTopicList = function(topicListArray) {
+    var topicListHtml = '';
+    for (var element in topicListArray) {
+      var currentElement = topicListArray[element];
+      var lastCommenterDiv = topicUserTemplate
+      .replace('{{userName}}', currentElement['currCommentUser']['name'])
+      .replace('{{userId}}', currentElement['currCommentUser']['id']);
+      var currentTopic = topicElementTemplate
+      .replace('{{topicId}}', currentElement['topicId'])
+      .replace('{{commentCount}}', currentElement['commentCount'])
+      .replace('{{topicName}}', currentElement['htmlName'])
+      .replace('{{lastCommentTime}}', currentElement['currCommentTime'])
+      .replace('{{lastCommenterDiv}}', lastCommenterDiv);
+      topicListHtml += currentTopic;
+    }
+    return topicListHtml;
+  };
+
+  var initScripts = function() {
+    Forum.date.updateDomPart(domRoot);
+  };
+
+  var initTopics = function(topicDataArray) {
+    var topicTypeArray = ['topicHighlighted', 'topicNormal', 'topicBookmarked', 'topicNotBookmarked', 'topicArchived'];
+    var topicGroupNameArray = ['Highlighted topics', 'Normal topics', 'Bookmarked topics', 'Not bookmarked topics', 'Archived topics'];
+    var topicHtml = topicPageTemplate;
+    for (var element in topicTypeArray) {
+      var topicType = topicTypeArray[element];
+      var parsedTopicHtml = parseTopicList(topicDataArray[topicType]);
+      var htmlWithFrame = '';
+      if (parsedTopicHtml != '') {
+        var topicGroupHtml = topicGroupTemplate
+          .replace('{{topicGroupName}}', topicGroupNameArray[element])
+          .replace('{{topicElements}}', parsedTopicHtml);
+        var htmlWithFrame = frameTemplate.replace('{{content}}', topicGroupHtml);
+      }
+      topicHtml = topicHtml.replace('{{' + topicType + '}}', htmlWithFrame);
+    }
+    domRoot.html(topicHtml);
+    initScripts();
+    initTexts();
+//    domRoot.html(Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/topicPage.html'));
+//    domRoot.html(data);
+  };
+
+  var initTexts = function(actDomRoot) {
+    if (!actDomRoot)
+      actDomRoot = domRoot;
+    actDomRoot.find('[data-text="Reload topic list"]').html(_('Reload topic list'));
+    actDomRoot.find('[data-text="Highlighted topics"]').html(_('Highlighted topics'));
+    actDomRoot.find('[data-text="Normal topics"]').html(_('Normal topics'));
+    actDomRoot.find('[data-text="Bookmarked topics"]').html(_('Bookmarked topics'));
+    actDomRoot.find('[data-text="Not bookmarked topics"]').html(_('Not bookmarked topics'));
+    actDomRoot.find('[data-text="Archived topics"]').html(_('Archived topics'));
+    actDomRoot.find('[data-text="Topic name"]').html(_('Topic name'));
+    actDomRoot.find('[data-text="Comment count"]').html(_('Comment count'));
+    actDomRoot.find('[data-text="Last comment time"]').html(_('Last comment time'));
+    actDomRoot.find('[data-text="Last commenter name"]').html(_('Last commenter name'));
+//    actDomRoot.find('[data-text=""]').html(_(''));
+  };
+
+  return this.init(options);
 };
-Forum.widget.TopicList.prototype = new Forum.widget.Base();
 
 Forum.loader = {
   show: function() {
@@ -94,11 +264,8 @@ Forum.loader = {
 };
 
 Forum.gui = {
-  languageHookObj: new Object(),
-  tabList: {
-    'settingsTab': null,
-    'topicListTab': null,
-  },
+  _languageHookObj: new Object(),
+  _tabList: new Object(),
 
   init: function() {
     if ($.jStorage.get('cacheKey') != Forum.settings.cacheKey) {
@@ -106,8 +273,7 @@ Forum.gui = {
       $.jStorage.set('cacheKey', Forum.settings.cacheKey);
     }
     $.when(
-      Forum.storage.getDeferred('/languages/' + Forum.settings.displayLanguage + '.json'),
-      Forum.storage.getDeferred('/html/topicGroup.html')
+      Forum.storage.getDeferred('/languages/' + Forum.settings.displayLanguage + '.json')
     ).then(function(res1, res2) {
       Forum.gui.launch();
     });
@@ -129,6 +295,37 @@ Forum.gui = {
     }
     mainTab.tabs('add', options['tabId'], options['tabName']);
     $('[data-text="' + options['tabName'] + '"]').html(Forum.gettext.gettext(options['tabName']));
+  },
+
+  initTabContent: function(tabName, options) {
+    if (options['moduleName'] = 'topicList') {
+      Forum.gui._tabList[tabName] = new Forum.widget.TopicList(options['options']);
+    }
+  },
+
+  changeLanguage: function() {
+    Forum.settings.displayLanguage = $('#languageSelectorForm > select').val();
+    var localeUrl = '/languages/' + Forum.settings.displayLanguage + '.json';
+    $.when(
+      Forum.storage.getDeferred(localeUrl)
+    ).then(function(localeData) {
+      Forum.gettext = new Gettext({
+        domain: Forum.settings.displayLanguage,
+        locale_data: JSON.parse(localeData)
+      });
+      Forum.gui.initTexts();
+    });
+    Forum.date.doUpdate();
+  },
+
+  initTexts: function (domRoot) {
+    if (!domRoot)
+      domRoot = $(document);
+    domRoot.find('[data-text="Loading, please wait ..."]').html(_('Loading, please wait ...'));
+    domRoot.find('[data-text="Settings"]').html(_('Settings'));
+    domRoot.find('[data-text="Topic list"]').html(_('Topic list'));
+    for (key in Forum.gui._languageHookObj)
+      Forum.gui._languageHookObj[key](domRoot);
   },
 
   launch: function() {
@@ -153,30 +350,14 @@ Forum.gui = {
     });
     $('#languageSelectorForm > select').on('change', Forum.gui.changeLanguage);
     $('#mainTab').tabs('select', 'topicListTab');
-    Forum.gui.tabList['topicListTab'] = new Forum.widget.TopicList();
-    Forum.loader.hide();
-  },
-
-  changeLanguage: function() {
-    Forum.settings.displayLanguage = $('#languageSelectorForm > select').val();
-    var localeUrl = '/languages/' + Forum.settings.displayLanguage + '.json';
-    $.when(
-      Forum.storage.getDeferred(localeUrl)
-    ).then(function(localeData) {
-      Forum.gettext = new Gettext({
-        domain: Forum.settings.displayLanguage,
-        locale_data: JSON.parse(localeData)
-      });
-      Forum.gui.initTexts();
+    Forum.gui.initTabContent('topicListTab', {
+      moduleName:'topicList',
+      options: {
+        domRoot: $('#topicListTab'),
+      }
     });
-  },
-
-  initTexts: function () {
-    $('[data-text="Loading, please wait ..."]').html(_('Loading, please wait ...'));
-    $('[data-text="Settings"]').html(_('Settings'));
-    $('[data-text="Topic list"]').html(_('Topic list'));
-    for (key in Forum.gui.languageHookObj)
-      Forum.gui.languageHookObj[key]();
+    Forum.date.init();
+    Forum.loader.hide();
   },
 }
 
