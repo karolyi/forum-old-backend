@@ -50,6 +50,7 @@ Forum.backgroundImage = {
     var bgImage = $('#backgroundImage');
     var infoObj = Forum.backgroundImage._imageAspectsObj[src];
     bgImage.removeAttr('src');
+    bgImage.attr('src', '');
     Forum.backgroundImage.resize(infoObj);
     bgImage.attr('src', infoObj['src']);
   },
@@ -298,6 +299,9 @@ Forum.widget.TopicList = function(options){
 
   var initScripts = function() {
     Forum.date.updateDomPart(domRoot);
+    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseover', function() {$(this).addClass('mouseover')});
+    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
+    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
   };
 
   var initTopics = function(topicDataArray) {
@@ -438,7 +442,8 @@ Forum.gui = {
       return Forum.gettext.gettext(msgid);
     }
     Forum.gui.initTexts();
-    $('#mainTab').tabs({fx: { opacity: 'toggle' }}).find( ".ui-tabs-nav" ).sortable({ axis: "x" });
+//    $('#mainTab').tabs({fx: { opacity: 'toggle' }}).find( ".ui-tabs-nav" ).sortable({ axis: "x" });
+    $('#mainTab').tabs().find( ".ui-tabs-nav" ).sortable({ axis: "x" });
     for (key in Forum.settings.languageObj) {
       selected = '';
       if (key == Forum.settings.displayLanguage)
