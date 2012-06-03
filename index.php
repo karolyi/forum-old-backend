@@ -27,7 +27,7 @@ $backgroundImageObj = new \Forum\BackgroundImages();
       Forum.settings.languageObj = <?php print json_encode($forum->configOptions->languageArray)?>;
       Forum.settings.usedSkin = '<?php print $currentUser->getUsedSkin()?>';
       Forum.settings.timeZoneDiff = <?php print $dateTimeZoneObj->getOffset(new DateTime('now', new DateTimeZone('GMT'))) / 60?>;
-      Forum.settings.backgroundImages = <?php print json_encode($backgroundImageObj->getSource())?>;
+      Forum.settings.bgImageArray = <?php print json_encode($backgroundImageObj->getSource())?>;
     </script>
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" type="text/css" />
     <link rel="stylesheet" href="/skins/<?php print $currentUser->getUsedSkin()?>/css/style.css" type="text/css" />
@@ -40,7 +40,7 @@ $backgroundImageObj = new \Forum\BackgroundImages();
       </div>
     </div>
     <div id="pageHolder">
-      <img id="backgroundImg" alt="" />
+      <img id="backgroundImage" alt="" />
       <div id="languageSelectorHolder">
         <form id="languageSelectorForm">
         <select></select>

@@ -6,26 +6,98 @@ Forum.settings = {
   languageObj: {},
   usedSkin: '',
   timeZoneDiff: 0,
-  backgroundImages: [],
-  selectedBackgroundImageBefore: null,
-  selectedBackgroundImage: null,
+  bgImageArray: [],
 };
 
-Forum.imageLoader = {
+Forum.backgroundImage = {
   _loadImageCache: new Object(),
+  _imageAspectsObj: new Object(),
+  _selected: null,
+  _selectedBefore: null,
+  _resizeTimeoutId: null,
+
+  _getSrc: function(url) {
+    var tempLink = document.createElement('a');
+    tempLink.href = url;
+    return tempLink.pathname;
+  },
+
+  _imageLoaded: function(imageObj) {
+    var src = Forum.backgroundImage._getSrc(imageObj.src);
+    // Store aspects of the background image
+    Forum.backgroundImage._imageAspectsObj[src] = {
+      origHeight: imageObj.height,
+      origWidth: imageObj.width,
+      src: imageObj.src,
+    };
+    Forum.backgroundImage._loadImageCache[src].resolve(src);
+  },
 
   load: function (imageSrc) {
-    if (typeof Forum.imageLoader._loadImageCache[imageSrc] === "undefined") {
-      deferred = $.Deferred();
+    if (typeof Forum.backgroundImage._loadImageCache[imageSrc] === "undefined") {
 
       preloader         = new Image();
-      preloader.onload  = function() { deferred.resolve(this.src) };
-      preloader.onerror = function() { deferred.reject(this.src)  };
+      preloader.onload  = function() { Forum.backgroundImage._imageLoaded(this) };
+      preloader.onerror = function() { Forum.backgroundImage._deferredObj.reject(this.src)  };
       preloader.src     = imageSrc;
 
-      Forum.imageLoader._loadImageCache[imageSrc] = deferred;
+      Forum.backgroundImage._loadImageCache[imageSrc] = $.Deferred();
     }
-    return Forum.imageLoader._loadImageCache[imageSrc];
+    return Forum.backgroundImage._loadImageCache[imageSrc].promise();
+  },
+
+  change: function(src) {
+    var bgImage = $('#backgroundImage');
+    var infoObj = Forum.backgroundImage._imageAspectsObj[src];
+    bgImage.removeAttr('src');
+    Forum.backgroundImage.resize(infoObj);
+    bgImage.attr('src', infoObj['src']);
+  },
+
+  resize: function(infoObj) {
+    var bgImage = $('#backgroundImage');
+    if (!infoObj) {
+      // Called from timer, get the current info obj
+      var src = Forum.backgroundImage._getSrc(bgImage.attr('src'));
+      var infoObj = Forum.backgroundImage._imageAspectsObj[src];
+    }
+    var windowHeight = $(window).height();
+    var windowWidth = $(window).width();
+    // Height goes 100%
+    var multiplicator = windowHeight / infoObj['origHeight'];
+    var width = infoObj['origWidth'] * multiplicator;
+    var height = infoObj['origHeight'] * multiplicator;
+    if (width < windowWidth) {
+      // Width is less than window widht, so we resize again to make width 100% and height more than 100%
+      multiplicator = windowWidth / infoObj['origWidth'];
+      width = infoObj['origWidth'] * multiplicator;
+      height = infoObj['origHeight'] * multiplicator;
+    }
+    bgImage.attr('height', height);
+    bgImage.attr('width', width);
+  },
+
+  prepareResize: function() {
+    if (Forum.backgroundImage._resizeTimeoutId) {
+      clearTimeout(Forum.backgroundImage._resizeTimeoutId);
+    }
+    Forum.backgroundImage._resizeTimeoutId = setTimeout(function() {
+      Forum.backgroundImage.resize();
+      Forum.backgroundImage._resizeTimeoutId = null;
+    }, 0);
+  },
+
+  getRandomSrc: function() {
+    var backgroundImagesLength = Forum.settings.bgImageArray.length;
+    if (backgroundImagesLength > 1) {
+      while(Forum.backgroundImage._selected === Forum.backgroundImage._selectedBefore)
+        Forum.backgroundImage._selected = Math.floor(Math.random() * backgroundImagesLength);
+      Forum.backgroundImage._selectedBefore = Forum.backgroundImage._selected;
+    } else {
+      Forum.backgroundImage._selected = 0;
+      Forum.backgroundImage._selectedBefore = 0;
+    }
+    return Forum.settings.bgImageArray[Forum.backgroundImage._selected];
   },
 }
 
@@ -285,21 +357,15 @@ Forum.gui = {
   _tabList: new Object(),
 
   init: function() {
-    var backgroundImagesLength = Forum.settings.backgroundImages.length;
-    Forum.settings.selectedBackgroundImage = Math.floor(Math.random() * backgroundImagesLength);
-    Forum.settings.selectedBackgroundImageBefore = null;
-    if (backgroundImagesLength > 1)
-      while(Forum.settings.selectedBackgroundImageBefore === Forum.settings.selectedBackgroundImage)
-        Forum.settings.selectedBackgroundImage = Math.floor(Math.random() * backgroundImagesLength);
-    Forum.settings.selectedBackgroundImageBefore = Forum.settings.selectedBackgroundImage;
     if ($.jStorage.get('cacheKey') != Forum.settings.cacheKey) {
       $.jStorage.flush();
       $.jStorage.set('cacheKey', Forum.settings.cacheKey);
     }
     $.when(
       Forum.storage.getDeferred('/languages/' + Forum.settings.displayLanguage + '.json'),
-      Forum.imageLoader.load(Forum.settings.backgroundImages[Forum.settings.selectedBackgroundImage])
+      Forum.backgroundImage.load(Forum.backgroundImage.getRandomSrc())
     ).then(function(res1, res2) {
+      Forum.backgroundImage.change(res2);
       Forum.gui.launch();
     });
   },
@@ -354,7 +420,16 @@ Forum.gui = {
   },
 
   launch: function() {
-    $('#backgroundImg').attr('src', Forum.settings.backgroundImages[Forum.settings.selectedBackgroundImage]);
+    $(window).resize(function(eventObj) {
+      Forum.backgroundImage.prepareResize(eventObj);
+    });
+    setInterval(function() {
+      var newSrc = Forum.backgroundImage.getRandomSrc();
+      $.when(Forum.backgroundImage.load(newSrc))
+      .then(function(src){
+        Forum.backgroundImage.change(src);
+      });
+    }, 5 * 60 * 1000);
     Forum.gettext = new Gettext({
       domain: Forum.settings.displayLanguage,
       locale_data: JSON.parse(Forum.storage.get('/languages/' + Forum.settings.displayLanguage + '.json'))
