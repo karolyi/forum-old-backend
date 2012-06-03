@@ -1,5 +1,5 @@
 <?php
-include_once('api/ForumClass.inc.php');
+include_once($_SERVER['DOCUMENT_ROOT'] . '/api/ForumClass.inc.php');
 $forum = new \Forum();
 $forum->checkSession();
 $sessionObj = \Forum\Session::getInstance();
@@ -35,12 +35,7 @@ $backgroundImageObj = new \Forum\BackgroundImages();
     <link rel="stylesheet" href="/skins/<?php print $currentUser->getUsedSkin()?>/css/style.css" type="text/css" />
   </head>
   <body>
-    <div style="position:absolute;top:50%;left:50%;display:table-cell;vertical-align:middle" id="pageLoader">
-      <div style="position: relative;top:-100%;left:-50%;text-align:center">
-        <img src="/skins/<?php print $currentUser->getUsedSkin()?>/images/ajax-loader.gif" alt="<?php print _('Loader')?>"/><br />
-        <div data-text="Loading, please wait ..."></div>
-      </div>
-    </div>
+    <?php include($_SERVER['DOCUMENT_ROOT'] . '/skins/' . $currentUser->getUsedSkin() . '/html/loaderTemplate.html')?>
     <div id="pageHolder">
       <img id="backgroundImage" alt="" />
       <div id="languageSelectorHolder">

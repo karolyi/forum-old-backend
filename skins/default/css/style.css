@@ -1,13 +1,25 @@
 html,
 body {
-  background-color: white;
-  min-height: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
 }
-#pageLoader {
+#mainTab {
+}
+#loader {
   font-family: "HelveticaNeue", "Helvetica Neue", Verdana, Helvetica, Arial, sans-serif;
   font-size: 14px;
+  background-color: #FFF;
+  filter:alpha(opacity=80);
+  -moz-opacity: 0.8;
+  opacity: 0.8;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  border-radius: 5px;
+  border: 2px solid #ccc;
+  top: 0;
+  left: 0;
 }
 #pageHolder {
   min-height: 100%;
@@ -16,6 +28,10 @@ body {
   display: none;
 }
 
+.ui-tabs-panel {
+  position: relative;
+  min-height: 300px;
+}
 .frame {
   margin-top: 1em;
   margin-bottom: 1em;
@@ -77,6 +93,7 @@ div#topicGroup table#topicTable tbody tr#topicHeader.mouseover {
 }
 div#topicGroup table#topicTable tbody tr#topicHeader {
   cursor: default;
+  height: 30px;
 }
 div#topicGroup table#topicTable tbody tr#topicHeader td#topicName,
 div#topicGroup table#topicTable tbody tr#topicHeader td#lastCommenterName {
@@ -95,3 +112,4 @@ div#topicGroup table#topicTable tbody tr#topicHeader td#lastCommenterName div#us
 .ui-tooltip-forum img {
   max-width: 250px;
 }
+

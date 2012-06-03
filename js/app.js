@@ -9,6 +9,12 @@ Forum.settings = {
   bgImageArray: [],
 };
 
+Forum.utils = {
+  htmlEntities: function(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  },
+};
+
 Forum.backgroundImage = {
   _loadImageCache: new Object(),
   _imageAspectsObj: new Object(),
@@ -304,7 +310,7 @@ Forum.widget.TopicList = function(options){
     domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
     domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#topicName').on('click', function() {
       var topicId = $(this).parent().data('topicid');
-      console.log('clicked ' + topicId);
+      openTopic(topicId);
     });
     for (var element in topicDataArray) {
       for (var topicElement in topicDataArray[element]) {
@@ -332,7 +338,7 @@ Forum.widget.TopicList = function(options){
     domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#lastCommenterName div#userDiv').qtip({
       content: {
         text: function (api) {
-          var retValue = $(this).data('quote');
+          var retValue = Forum.utils.htmlEntities($(this).data('quote'));
           if (retValue == '')
             retValue = '-';
           return retValue;
@@ -401,23 +407,69 @@ Forum.widget.TopicList = function(options){
 //    actDomRoot.find('[data-text=""]').html(_(''));
   };
 
+  var openTopic = function(topicId) {
+    console.log(topicId);
+  };
+
   return this.init(options);
 };
 
 Forum.loader = {
-  show: function() {
-    $('#pageLoader').fadeIn(1000);
-    $('#pageHolder').fadeOut(1000);
+  add: function(domRoot) {
+    if (!domRoot)
+      return;
+    // Only if there is no loader yet
+    if (!domRoot.find('> div#loader').length) {
+      domRoot.prepend(Forum.loader.template);
+      domRoot.find('[data-text="Loading, please wait ..."]').html(_('Loading, please wait ...'));
+    }
   },
+
+  show: function(domRoot) {
+    if (!domRoot)
+      var domRoot = $('body');
+    domRoot.find('> div#loader:first').fadeIn(1000);
+    domRoot.find('> div#pageHolder:first').fadeOut(1000);
+  },
+
   hide: function() {
-    $('#pageLoader').fadeOut(1000);
-    $('#pageHolder').fadeIn(1000);
+    if (!domRoot)
+      var domRoot = $('body');
+    domRoot.find('> div#loader:first').fadeOut(1000);
+    domRoot.find('> div#pageHolder:first').fadeIn(1000);
   },
 };
 
 Forum.gui = {
   _languageHookObj: new Object(),
   _tabList: new Object(),
+
+  tabs: {
+    add: function(options) {
+      var mainTab = $('#mainTab');
+      if (options['closable']) {
+        mainTab.tabs('option', 'tabTemplate', '<li><a href="#{href}" data-text="#{label}"></a> <span class="ui-icon ui-icon-close" data-text="Close tab">' + _('Close tab') + '</span></li>');
+      } else {
+        mainTab.tabs('option', 'tabTemplate', '<li><a href="#{href}" data-text="#{label}"></a></li>');
+      }
+      mainTab.tabs('add', options['tabId'], options['tabName']);
+      $('[data-text="' + options['tabName'] + '"]').html(Forum.gettext.gettext(options['tabName']));
+    },
+
+    close: function(tabName) {
+      // Remove the # character from the href
+      tabName = tabName.substr(1);
+      var mainTab = $('#mainTab');
+      mainTab.tabs("remove", tabName);
+    },
+
+    initContent: function(tabName, options) {
+      if (options['moduleName'] = 'topicList') {
+        Forum.gui._tabList[tabName] = new Forum.widget.TopicList(options['options']);
+      }
+    },
+
+  },
 
   init: function() {
     if ($.jStorage.get('cacheKey') != Forum.settings.cacheKey) {
@@ -426,35 +478,13 @@ Forum.gui = {
     }
     $.when(
       Forum.storage.getDeferred('/languages/' + Forum.settings.displayLanguage + '.json'),
-      Forum.backgroundImage.load(Forum.backgroundImage.getRandomSrc())
-    ).then(function(res1, res2) {
+      Forum.backgroundImage.load(Forum.backgroundImage.getRandomSrc()),
+      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/loaderTemplate.html')
+    ).then(function(res1, res2, res3) {
+      Forum.loader.template = res3;
       Forum.backgroundImage.change(res2);
       Forum.gui.launch();
     });
-  },
-
-  closeTab: function(tabName) {
-    // Remove the # character from the href
-    tabName = tabName.substr(1);
-    var mainTab = $('#mainTab');
-    mainTab.tabs("remove", tabName);
-  },
-
-  addTab: function(options) {
-    var mainTab = $('#mainTab');
-    if (options['closable']) {
-      mainTab.tabs('option', 'tabTemplate', '<li><a href="#{href}" data-text="#{label}"></a> <span class="ui-icon ui-icon-close" data-text="Close tab">' + _('Close tab') + '</span></li>');
-    } else {
-      mainTab.tabs('option', 'tabTemplate', '<li><a href="#{href}" data-text="#{label}"></a></li>');
-    }
-    mainTab.tabs('add', options['tabId'], options['tabName']);
-    $('[data-text="' + options['tabName'] + '"]').html(Forum.gettext.gettext(options['tabName']));
-  },
-
-  initTabContent: function(tabName, options) {
-    if (options['moduleName'] = 'topicList') {
-      Forum.gui._tabList[tabName] = new Forum.widget.TopicList(options['options']);
-    }
   },
 
   changeLanguage: function() {
@@ -511,11 +541,11 @@ Forum.gui = {
     }
     $( "#mainTab span.ui-icon-close" ).live( "click", function() {
       var tabName = $(this).parent().find('a:first').attr('href');
-      Forum.gui.closeTab(tabName);
+      Forum.gui.tabs.close(tabName);
     });
     $('#languageSelectorForm > select').on('change', Forum.gui.changeLanguage);
     $('#mainTab').tabs('select', 'topicListTab');
-    Forum.gui.initTabContent('topicListTab', {
+    Forum.gui.tabs.initContent('topicListTab', {
       moduleName:'topicList',
       options: {
         domRoot: $('#topicListTab'),
