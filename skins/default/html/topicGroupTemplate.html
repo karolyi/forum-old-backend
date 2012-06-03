@@ -1,12 +1,16 @@
 <div id="topicGroup">
-  <div data-text="{{topicGroupName}}"></div>
-  <div id="topicHeader">
-    <ul>
-      <li id="topicName" data-text="Topic name"></li>
-      <li id="commentCount" data-text="Comment count"></li>
-      <li id="lastCommentTime" data-text="Last comment time"></li>
-      <li id="lastCommenterName" data-text="Last commenter name"></li>
-    </ul>
-  </div>
-  {{topicElements}}
+  <div data-text="{{topicGroupName}}" id="topicGroupName"></div>
+  <table id="topicTable">
+    <thead>
+      <tr id="topicHeader">
+        <th id="topicName" data-text="Topic name"></th>
+        <th id="commentCount" data-text="Comment count"></th>
+        <th id="lastCommentTime" data-text="Last comment time"></th>
+        <th id="lastCommenterName" data-text="Last commenter name"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{topicElements}}
+    </tbody>
+  </table>
 </div>
