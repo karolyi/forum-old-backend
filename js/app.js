@@ -6,7 +6,28 @@ Forum.settings = {
   languageObj: {},
   usedSkin: '',
   timeZoneDiff: 0,
+  backgroundImages: [],
+  selectedBackgroundImageBefore: null,
+  selectedBackgroundImage: null,
 };
+
+Forum.imageLoader = {
+  _loadImageCache: new Object(),
+
+  load: function (imageSrc) {
+    if (typeof Forum.imageLoader._loadImageCache[imageSrc] === "undefined") {
+      deferred = $.Deferred();
+
+      preloader         = new Image();
+      preloader.onload  = function() { deferred.resolve(this.src) };
+      preloader.onerror = function() { deferred.reject(this.src)  };
+      preloader.src     = imageSrc;
+
+      Forum.imageLoader._loadImageCache[imageSrc] = deferred;
+    }
+    return Forum.imageLoader._loadImageCache[imageSrc];
+  },
+}
 
 Forum.storage = {
   _storage: new Object(),
@@ -18,7 +39,7 @@ Forum.storage = {
 
     this.load = function(key) {
       $.ajax({
-        url: key,
+        url: key + '?_=' + (new Date()).getTime(),
         success: this.setKey
       });
       this.key = key;
@@ -63,8 +84,6 @@ Forum.storage = {
 };
 
 Forum.date = {
-  monthNames: new Array(),
-  dayNames: new Array(),
   _currTime: 0,
   _timeZoneSecsDiff: 0,
   _unixTimes: {},
@@ -72,8 +91,6 @@ Forum.date = {
 
   init: function() {
     // console.log((new Date()).getTimezoneOffset());
-    this.monthNames = [_('January'), _('February'), _('March'), _('April'), _('May'), _('June'), _('July'), _('August'), _('September'), _('October'), _('November'), _('December')];
-    this.dayNames = [_('Sunday'), _('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday')];
     var myTimeZone = (new Date()).getTimezoneOffset();
     this._timeZoneSecsDiff = (myTimeZone + Forum.settings.timeZoneDiff) * 60;
     dateFormat.i18n = {
@@ -96,6 +113,7 @@ Forum.date = {
     this._unixTimes['todayBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0, 0);
     this._unixTimes['yesterdayBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() - 1, 0, 0, 0);
     this._unixTimes['fourDaysBeforeBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() - 3, 0, 0, 0);
+    this._unixTimes['oneDayBeforeBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() - 1, nowDate.getHours(), nowDate.getMinutes(), nowDate.getSeconds());
     for (key in this._unixTimes)
       this._unixTimes[key] = Math.floor(this._unixTimes[key].getTime() / 1000);
   },
@@ -126,7 +144,7 @@ Forum.date = {
       return sprintf(Forum.gettext.ngettext('%d minutes ago', '%s minutes ago'), Math.floor(difference / 60));
     if (difference > 3600 && difference < 7200)
       return _('about an hour ago');
-    if (timeWithTimeZone > this._unixTimes['todayBegin']) {
+    if (timeWithTimeZone > this._unixTimes['oneDayBeforeBegin']) {
       // Calculate hours difference
       var hourValue = Math.floor((this._unixTimes['currTime'] - timeWithTimeZone) / 3600);
       return sprintf(Forum.gettext.ngettext('%d hours ago', '%s hours ago', hourValue), hourValue);
@@ -229,8 +247,7 @@ Forum.widget.TopicList = function(options){
     domRoot.html(topicHtml);
     initScripts();
     initTexts();
-//    domRoot.html(Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/topicPage.html'));
-//    domRoot.html(data);
+    Forum.loader.hide();
   };
 
   var initTexts = function(actDomRoot) {
@@ -268,12 +285,20 @@ Forum.gui = {
   _tabList: new Object(),
 
   init: function() {
+    var backgroundImagesLength = Forum.settings.backgroundImages.length;
+    Forum.settings.selectedBackgroundImage = Math.floor(Math.random() * backgroundImagesLength);
+    Forum.settings.selectedBackgroundImageBefore = null;
+    if (backgroundImagesLength > 1)
+      while(Forum.settings.selectedBackgroundImageBefore === Forum.settings.selectedBackgroundImage)
+        Forum.settings.selectedBackgroundImage = Math.floor(Math.random() * backgroundImagesLength);
+    Forum.settings.selectedBackgroundImageBefore = Forum.settings.selectedBackgroundImage;
     if ($.jStorage.get('cacheKey') != Forum.settings.cacheKey) {
       $.jStorage.flush();
       $.jStorage.set('cacheKey', Forum.settings.cacheKey);
     }
     $.when(
-      Forum.storage.getDeferred('/languages/' + Forum.settings.displayLanguage + '.json')
+      Forum.storage.getDeferred('/languages/' + Forum.settings.displayLanguage + '.json'),
+      Forum.imageLoader.load(Forum.settings.backgroundImages[Forum.settings.selectedBackgroundImage])
     ).then(function(res1, res2) {
       Forum.gui.launch();
     });
@@ -314,8 +339,8 @@ Forum.gui = {
         locale_data: JSON.parse(localeData)
       });
       Forum.gui.initTexts();
+      Forum.date.init();
     });
-    Forum.date.doUpdate();
   },
 
   initTexts: function (domRoot) {
@@ -329,6 +354,7 @@ Forum.gui = {
   },
 
   launch: function() {
+    $('#backgroundImg').attr('src', Forum.settings.backgroundImages[Forum.settings.selectedBackgroundImage]);
     Forum.gettext = new Gettext({
       domain: Forum.settings.displayLanguage,
       locale_data: JSON.parse(Forum.storage.get('/languages/' + Forum.settings.displayLanguage + '.json'))
@@ -337,7 +363,7 @@ Forum.gui = {
       return Forum.gettext.gettext(msgid);
     }
     Forum.gui.initTexts();
-    $('#mainTab').tabs().find( ".ui-tabs-nav" ).sortable({ axis: "x" });
+    $('#mainTab').tabs({fx: { opacity: 'toggle' }}).find( ".ui-tabs-nav" ).sortable({ axis: "x" });
     for (key in Forum.settings.languageObj) {
       selected = '';
       if (key == Forum.settings.displayLanguage)
@@ -357,7 +383,6 @@ Forum.gui = {
       }
     });
     Forum.date.init();
-    Forum.loader.hide();
   },
 }
 

@@ -140,7 +140,7 @@ msgstr ""
 
 #: js/app.js:84
 msgid "May_short"
-msgstr ""
+msgstr "May"
 
 #: js/app.js:84
 msgid "Jun"
@@ -194,8 +194,8 @@ msgstr ""
 #, fuzzy, python-format
 msgid "%d hours ago"
 msgid_plural "%s hours ago"
-msgstr[0] "%s minute ago"
-msgstr[1] "%s minute ago"
+msgstr[0] "%s hours ago"
+msgstr[1] "%s hours ago"
 
 #: js/app.js:140
 msgid "\"Yesterday at\" H:MM"
@@ -241,7 +241,7 @@ msgstr ""
 #: js/app.js:248
 #, fuzzy
 msgid "Topic name"
-msgstr "<No name>"
+msgstr ""
 
 #: js/app.js:249
 msgid "Comment count"

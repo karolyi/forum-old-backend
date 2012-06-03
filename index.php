@@ -5,6 +5,8 @@ $forum->checkSession();
 $sessionObj = \Forum\Session::getInstance();
 $currentUser = \Forum\User::getById($sessionObj->getUserId());
 $dateTimeZoneObj = new DateTimeZone(ini_get('date.timezone'));
+$backgroundImageObj = new \Forum\BackgroundImages();
+
 ?>
 <!doctype html>
 <html>
@@ -25,9 +27,10 @@ $dateTimeZoneObj = new DateTimeZone(ini_get('date.timezone'));
       Forum.settings.languageObj = <?php print json_encode($forum->configOptions->languageArray)?>;
       Forum.settings.usedSkin = '<?php print $currentUser->getUsedSkin()?>';
       Forum.settings.timeZoneDiff = <?php print $dateTimeZoneObj->getOffset(new DateTime('now', new DateTimeZone('GMT'))) / 60?>;
+      Forum.settings.backgroundImages = <?php print json_encode($backgroundImageObj->getSource())?>;
     </script>
-    <link rel="stylesheet" href="/skins/<?php print $currentUser->getUsedSkin()?>/css/style.css" type="text/css" />
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" type="text/css" />
+    <link rel="stylesheet" href="/skins/<?php print $currentUser->getUsedSkin()?>/css/style.css" type="text/css" />
   </head>
   <body>
     <div style="position:absolute;top:50%;left:50%;display:table-cell;vertical-align:middle" id="pageLoader">
@@ -37,6 +40,7 @@ $dateTimeZoneObj = new DateTimeZone(ini_get('date.timezone'));
       </div>
     </div>
     <div id="pageHolder">
+      <img id="backgroundImg" alt="" />
       <div id="languageSelectorHolder">
         <form id="languageSelectorForm">
         <select></select>
