@@ -3,13 +3,13 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: js/app.js:252
+#: js/app.js:394
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-02 22:58+0200\n"
+"POT-Creation-Date: 2012-06-03 17:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,253 +19,253 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: js/app.js:74 js/app.js:85
-msgid "January"
-msgstr ""
-
-#: js/app.js:74 js/app.js:85
-msgid "February"
-msgstr ""
-
-#: js/app.js:74 js/app.js:85
-msgid "March"
-msgstr ""
-
-#: js/app.js:74 js/app.js:85
-msgid "April"
-msgstr ""
-
-#: js/app.js:74 js/app.js:85
-msgid "May"
-msgstr ""
-
-#: js/app.js:74 js/app.js:85
-msgid "June"
-msgstr ""
-
-#: js/app.js:74 js/app.js:85
-msgid "July"
-msgstr ""
-
-#: js/app.js:74 js/app.js:85
-msgid "August"
-msgstr ""
-
-#: js/app.js:74 js/app.js:85
-msgid "September"
-msgstr ""
-
-#: js/app.js:74 js/app.js:85
-msgid "October"
-msgstr ""
-
-#: js/app.js:74 js/app.js:85
-msgid "November"
-msgstr ""
-
-#: js/app.js:74 js/app.js:85
-msgid "December"
-msgstr ""
-
-#: js/app.js:75 js/app.js:81
-msgid "Sunday"
-msgstr ""
-
-#: js/app.js:75 js/app.js:81
-msgid "Monday"
-msgstr ""
-
-#: js/app.js:75 js/app.js:81
-msgid "Tuesday"
-msgstr ""
-
-#: js/app.js:75 js/app.js:81
-msgid "Wednesday"
-msgstr ""
-
-#: js/app.js:75 js/app.js:81
-msgid "Thursday"
-msgstr ""
-
-#: js/app.js:75 js/app.js:81
-msgid "Friday"
-msgstr ""
-
-#: js/app.js:75 js/app.js:81
-msgid "Saturday"
-msgstr ""
-
-#: js/app.js:80
+#: js/app.js:171
 msgid "Sun"
 msgstr ""
 
-#: js/app.js:80
+#: js/app.js:171
 msgid "Mon"
 msgstr ""
 
-#: js/app.js:80
+#: js/app.js:171
 msgid "Tue"
 msgstr ""
 
-#: js/app.js:80
+#: js/app.js:171
 msgid "Wed"
 msgstr ""
 
-#: js/app.js:80
+#: js/app.js:171
 msgid "Thu"
 msgstr ""
 
-#: js/app.js:80
+#: js/app.js:171
 msgid "Fri"
 msgstr ""
 
-#: js/app.js:80
+#: js/app.js:171
 msgid "Sat"
 msgstr ""
 
-#: js/app.js:84
+#: js/app.js:172
+msgid "Sunday"
+msgstr ""
+
+#: js/app.js:172
+msgid "Monday"
+msgstr ""
+
+#: js/app.js:172
+msgid "Tuesday"
+msgstr ""
+
+#: js/app.js:172
+msgid "Wednesday"
+msgstr ""
+
+#: js/app.js:172
+msgid "Thursday"
+msgstr ""
+
+#: js/app.js:172
+msgid "Friday"
+msgstr ""
+
+#: js/app.js:172
+msgid "Saturday"
+msgstr ""
+
+#: js/app.js:175
 msgid "Jan"
 msgstr ""
 
-#: js/app.js:84
+#: js/app.js:175
 msgid "Feb"
 msgstr ""
 
-#: js/app.js:84
+#: js/app.js:175
 msgid "Mar"
 msgstr ""
 
-#: js/app.js:84
+#: js/app.js:175
 msgid "Apr"
 msgstr ""
 
-#: js/app.js:84
+#: js/app.js:175
 msgid "May_short"
 msgstr ""
 
-#: js/app.js:84
+#: js/app.js:175
 msgid "Jun"
 msgstr ""
 
-#: js/app.js:84
+#: js/app.js:175
 msgid "Jul"
 msgstr ""
 
-#: js/app.js:84
+#: js/app.js:175
 msgid "Aug"
 msgstr ""
 
-#: js/app.js:84
+#: js/app.js:175
 msgid "Sep"
 msgstr ""
 
-#: js/app.js:84
+#: js/app.js:175
 msgid "Oct"
 msgstr ""
 
-#: js/app.js:84
+#: js/app.js:175
 msgid "Nov"
 msgstr ""
 
-#: js/app.js:84
+#: js/app.js:175
 msgid "Dec"
 msgstr ""
 
-#: js/app.js:121
-msgid "dddd, mmmm dd, yyyy, HH:MM:MM Zo"
+#: js/app.js:176
+msgid "January"
 msgstr ""
 
-#: js/app.js:129
+#: js/app.js:176
+msgid "February"
+msgstr ""
+
+#: js/app.js:176
+msgid "March"
+msgstr ""
+
+#: js/app.js:176
+msgid "April"
+msgstr ""
+
+#: js/app.js:176
+msgid "May"
+msgstr ""
+
+#: js/app.js:176
+msgid "June"
+msgstr ""
+
+#: js/app.js:176
+msgid "July"
+msgstr ""
+
+#: js/app.js:176
+msgid "August"
+msgstr ""
+
+#: js/app.js:176
+msgid "September"
+msgstr ""
+
+#: js/app.js:176
+msgid "October"
+msgstr ""
+
+#: js/app.js:176
+msgid "November"
+msgstr ""
+
+#: js/app.js:176
+msgid "December"
+msgstr ""
+
+#: js/app.js:207
+msgid "dddd, mmmm dd, yyyy, HH:MM:ss Z"
+msgstr ""
+
+#: js/app.js:215
 msgid "less then a minute ago"
 msgstr ""
 
-#: js/app.js:131
+#: js/app.js:217
 #, python-format
 msgid "%d minutes ago"
 msgid_plural "%s minutes ago"
 msgstr[0] ""
 msgstr[1] ""
 
-#: js/app.js:133
+#: js/app.js:219
 msgid "about an hour ago"
 msgstr ""
 
-#: js/app.js:137
+#: js/app.js:223
 #, python-format
 msgid "%d hours ago"
 msgid_plural "%s hours ago"
 msgstr[0] ""
 msgstr[1] ""
 
-#: js/app.js:140
+#: js/app.js:226
 msgid "\"Yesterday at\" H:MM"
 msgstr ""
 
-#: js/app.js:142
+#: js/app.js:228
 msgid "ddd \"at\" H:MM"
 msgstr ""
 
-#: js/app.js:144
+#: js/app.js:230
 msgid "mmm d \"at\" H:MM"
 msgstr ""
 
-#: js/app.js:145
+#: js/app.js:231
 msgid "mmmm d, yyyy"
 msgstr ""
 
-#: js/app.js:242
+#: js/app.js:384
 msgid "Reload topic list"
 msgstr ""
 
-#: js/app.js:243
+#: js/app.js:385
 msgid "Highlighted topics"
 msgstr ""
 
-#: js/app.js:244
+#: js/app.js:386
 msgid "Normal topics"
 msgstr ""
 
-#: js/app.js:245
+#: js/app.js:387
 msgid "Bookmarked topics"
 msgstr ""
 
-#: js/app.js:246
+#: js/app.js:388
 msgid "Not bookmarked topics"
 msgstr ""
 
-#: js/app.js:247
+#: js/app.js:389
 msgid "Archived topics"
 msgstr ""
 
-#: js/app.js:248
+#: js/app.js:390
 msgid "Topic name"
 msgstr ""
 
-#: js/app.js:249
+#: js/app.js:391
 msgid "Comment count"
 msgstr ""
 
-#: js/app.js:250
+#: js/app.js:392
 msgid "Last comment time"
 msgstr ""
 
-#: js/app.js:251
+#: js/app.js:393
 msgid "Last commenter name"
 msgstr ""
 
-#: js/app.js:295
+#: js/app.js:439
 msgid "Close tab"
 msgstr ""
 
-#: js/app.js:326
+#: js/app.js:471
 msgid "Loading, please wait ..."
 msgstr ""
 
-#: js/app.js:327
+#: js/app.js:472
 msgid "Settings"
 msgstr ""
 
-#: js/app.js:328
+#: js/app.js:473
 msgid "Topic list"
 msgstr ""
 

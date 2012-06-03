@@ -204,7 +204,7 @@ Forum.date = {
 
   longDate:function(time) {
     var thatTime = (new Date()).setTime(time * 1000);
-    return dateFormat(thatTime, _('dddd, mmmm dd, yyyy, HH:MM:ss Zo'))
+    return dateFormat(thatTime, _('dddd, mmmm dd, yyyy, HH:MM:ss Z'))
   },
 
   shortDate: function(time) {
@@ -237,7 +237,7 @@ Forum.date = {
     var shortDate = Forum.date.shortDate(time);
     var longDate = Forum.date.longDate(time);
     element.html(shortDate);
-    element.data('mouseover', longDate)
+    element.data('longdate', longDate)
   },
 
   updateDomPart: function(domRoot) {
@@ -302,12 +302,18 @@ Forum.widget.TopicList = function(options){
     domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseover', function() {$(this).addClass('mouseover')});
     domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
     domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
+    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#topicName').on('click', function() {
+      var topicId = $(this).parent().data('topicid');
+      console.log('clicked ' + topicId);
+    });
     for (var element in topicDataArray) {
       for (var topicElement in topicDataArray[element]) {
         var topicData = topicDataArray[element][topicElement];
         domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid="' + topicData['topicId'] + '"] td#topicName').data('tooltip', topicData['currParsedCommentText']);
+        domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid="' + topicData['topicId'] + '"] td#lastCommenterName div#userDiv').data('quote', topicData['currCommentUser']['quote']);
       }
     }
+    // Topic tooltip
     domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#topicName').qtip({
       content: {
         text: function (api) {
@@ -322,7 +328,39 @@ Forum.widget.TopicList = function(options){
         classes: 'ui-tooltip-shadow ui-tooltip-rounded ui-tooltip-light ui-tooltip-forum'
       }
     });
-//      data('tooltip', topicData['currParsedCommentText']);
+    // Username tooltip
+    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#lastCommenterName div#userDiv').qtip({
+      content: {
+        text: function (api) {
+          var retValue = $(this).data('quote');
+          if (retValue == '')
+            retValue = '-';
+          return retValue;
+        },
+      },
+      position: {
+        my: 'right center',
+        at: 'left center',
+      },
+      style: {
+        classes: 'ui-tooltip-shadow ui-tooltip-rounded ui-tooltip-light ui-tooltip-forum'
+      }
+    });
+    // Time tooltip
+    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#lastCommentTime').qtip({
+      content: {
+        text: function (api) {
+          return $(this).data('longdate');
+        },
+      },
+      position: {
+        my: 'bottom center',
+        at: 'top center',
+      },
+      style: {
+        classes: 'ui-tooltip-shadow ui-tooltip-rounded ui-tooltip-light ui-tooltip-forum'
+      }
+    });
   };
 
   var initTopics = function(topicDataArray) {
