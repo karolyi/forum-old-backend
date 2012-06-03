@@ -82,3 +82,5 @@ div#topicGroup table#topicTable tbody tr#topicHeader td#topicName,
 div#topicGroup table#topicTable tbody tr#topicHeader td#lastCommenterName {
   cursor: pointer;
 }
+.ui-tooltip-forum {
+}

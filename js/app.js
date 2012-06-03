@@ -297,11 +297,32 @@ Forum.widget.TopicList = function(options){
     return topicListHtml;
   };
 
-  var initScripts = function() {
+  var initScripts = function(topicDataArray) {
     Forum.date.updateDomPart(domRoot);
     domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseover', function() {$(this).addClass('mouseover')});
     domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
     domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
+    for (var element in topicDataArray) {
+      for (var topicElement in topicDataArray[element]) {
+        var topicData = topicDataArray[element][topicElement];
+        domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid="' + topicData['topicId'] + '"] td#topicName').data('tooltip', topicData['currParsedCommentText']);
+      }
+    }
+    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#topicName').qtip({
+      content: {
+        text: function (api) {
+          return $(this).data('tooltip');
+        },
+      },
+      position: {
+        my: 'left center',
+        at: 'right center',
+      },
+      style: {
+        classes: 'ui-tooltip-shadow ui-tooltip-rounded ui-tooltip-light ui-tooltip-forum'
+      }
+    });
+//      data('tooltip', topicData['currParsedCommentText']);
   };
 
   var initTopics = function(topicDataArray) {
@@ -321,7 +342,7 @@ Forum.widget.TopicList = function(options){
       topicHtml = topicHtml.replace('{{' + topicType + '}}', htmlWithFrame);
     }
     domRoot.html(topicHtml);
-    initScripts();
+    initScripts(topicDataArray);
     initTexts();
     Forum.loader.hide();
   };
