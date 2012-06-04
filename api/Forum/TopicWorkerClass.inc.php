@@ -14,15 +14,17 @@ class TopicWorker {
   /**
    * Return the appropriate topic object, according to the session.
    *
-   * @return array() Topic list object, sorted
+   * @param boolean If only the archived topics should return
    */
-  function getTopicList() {
+  function getTopicList($onlyArchived = False) {
     $myUserObj = \Forum\User::getById($this->session->getUserId());
     $searchArray = array('disabled' => False);
     // If not admin, only fetch the non-admin topics
     if (!$myUserObj->getIsAdmin())
       $searchArray['adminOnly'] = False;
-    if (!$myUserObj->getShowArchivedTopics())
+    if ($onlyArchived)
+      $searchArray['status'] = $this->TOPIC_ARCHIVED;
+    if (!$myUserObj->getShowArchivedTopics() && !isset($searchArray['status']))
       $searchArray['status'] = array('$nin' => array($this->TOPIC_ARCHIVED));
     $fieldsToShow = array(
       'htmlName',
@@ -71,5 +73,12 @@ class TopicWorker {
     );
     unset($row['currCommentOwnerId']);
     return $row;
+  }
+
+  /**
+   * Get the archived topics
+   */
+  function getArchivedTopicList() {
+    $this->getTopicList(True);
   }
 }

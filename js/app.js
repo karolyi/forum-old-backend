@@ -274,14 +274,28 @@ Forum.widget.TopicList = function(options){
       Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/topicPageTemplate.html'),
       Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/topicElementTemplate.html'),
       Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/frameTemplate.html'),
-      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/topicUserTemplate.html')
-    ).then(function(data, res1, res2, res3, res4, res5) {
+      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/topicUserTemplate.html'),
+      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/archivedTopicsLoaderTemplate.html')
+    ).then(function(data, res1, res2, res3, res4, res5, res6) {
       topicGroupTemplate = res1;
       topicPageTemplate = res2;
       topicElementTemplate = res3;
       frameTemplate = res4;
       topicUserTemplate = res5;
+      archivedTopicsLoaderTemplate = res6;
       initTopics(data[0]);
+    });
+  };
+
+  var loadArchivedtopics = function() {
+    var myDomRoot = domRoot.find('#topicArchived').parent();
+    myDomRoot.html('');
+    myDomRoot.css('min-height', '150px');
+    Forum.loader.add(myDomRoot);
+    Forum.loader.show(myDomRoot);
+    $.when($.ajax('/api/topic/archived'))
+    .then(function(data) {
+      console.log(data);
     });
   };
 
@@ -305,22 +319,24 @@ Forum.widget.TopicList = function(options){
 
   var initScripts = function(topicDataArray) {
     Forum.date.updateDomPart(domRoot);
-    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseover', function() {$(this).addClass('mouseover')});
-    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
-    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
-    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#topicName').on('click', function() {
+    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader').on('mouseover', function() {$(this).addClass('mouseover')});
+    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
+    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
+    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#topicName').on('click', function() {
       var topicId = $(this).parent().data('topicid');
       openTopic(topicId);
     });
+    if (domRoot.find('#archivedTopicsLoaderButton').length)
+      domRoot.find('#archivedTopicsLoaderButton').on('click', function() { loadArchivedtopics() });
     for (var element in topicDataArray) {
       for (var topicElement in topicDataArray[element]) {
         var topicData = topicDataArray[element][topicElement];
-        domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid="' + topicData['topicId'] + '"] td#topicName').data('tooltip', topicData['currParsedCommentText']);
-        domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid="' + topicData['topicId'] + '"] td#lastCommenterName div#userDiv').data('quote', topicData['currCommentUser']['quote']);
+        domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader[data-topicid="' + topicData['topicId'] + '"] td#topicName').data('tooltip', topicData['currParsedCommentText']);
+        domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader[data-topicid="' + topicData['topicId'] + '"] td#lastCommenterName div#userDiv').data('quote', topicData['currCommentUser']['quote']);
       }
     }
     // Topic tooltip
-    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#topicName').qtip({
+    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#topicName').qtip({
       content: {
         text: function (api) {
           return $(this).data('tooltip');
@@ -335,7 +351,7 @@ Forum.widget.TopicList = function(options){
       }
     });
     // Username tooltip
-    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#lastCommenterName div#userDiv').qtip({
+    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#lastCommenterName div#userDiv').qtip({
       content: {
         text: function (api) {
           var retValue = Forum.utils.htmlEntities($(this).data('quote'));
@@ -353,7 +369,7 @@ Forum.widget.TopicList = function(options){
       }
     });
     // Time tooltip
-    domRoot.find('div#topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#lastCommentTime').qtip({
+    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#lastCommentTime').qtip({
       content: {
         text: function (api) {
           return $(this).data('longdate');
@@ -379,9 +395,18 @@ Forum.widget.TopicList = function(options){
       var htmlWithFrame = '';
       if (parsedTopicHtml != '') {
         var topicGroupHtml = topicGroupTemplate
+          .replace('{{topicGroupType}}', topicType)
           .replace('{{topicGroupName}}', topicGroupNameArray[element])
           .replace('{{topicElements}}', parsedTopicHtml);
         var htmlWithFrame = frameTemplate.replace('{{content}}', topicGroupHtml);
+      } else {
+        if (topicType == 'topicArchived') {
+          var topicGroupHtml = archivedTopicsLoaderTemplate
+            .replace('{{topicGroupType}}', topicType)
+            .replace('{{topicGroupName}}', topicGroupNameArray[element])
+            .replace('{{topicElements}}', archivedTopicsLoaderTemplate);
+          var htmlWithFrame = frameTemplate.replace('{{content}}', topicGroupHtml);
+        }
       }
       topicHtml = topicHtml.replace('{{' + topicType + '}}', htmlWithFrame);
     }
@@ -394,6 +419,7 @@ Forum.widget.TopicList = function(options){
   var initTexts = function(actDomRoot) {
     if (!actDomRoot)
       actDomRoot = domRoot;
+    actDomRoot.find('[data-text="Show archived topics"]').html(_('Show archived topics'));
     actDomRoot.find('[data-text="Reload topic list"]').html(_('Reload topic list'));
     actDomRoot.find('[data-text="Highlighted topics"]').html(_('Highlighted topics'));
     actDomRoot.find('[data-text="Normal topics"]').html(_('Normal topics'));
@@ -472,6 +498,7 @@ Forum.gui = {
   },
 
   init: function() {
+    Forum.loader.show();
     if ($.jStorage.get('cacheKey') != Forum.settings.cacheKey) {
       $.jStorage.flush();
       $.jStorage.set('cacheKey', Forum.settings.cacheKey);

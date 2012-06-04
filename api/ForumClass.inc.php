@@ -35,12 +35,16 @@ class Forum {
     header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
     if ($requestArray[0] == 'topic') {
       if (isset($requestArray[1]) && $requestArray[1] != '') {
-        var_dump($requestArray[1]);
-        // Show the comments page
+        if ($requestArray[1] = 'archived') {
+          $this->topicWorker = new \Forum\TopicWorker();
+          $this->topicWorker->getArchivedTopicList();
+          return;
+        }
       } else {
         // Show the main topic page
         $this->topicWorker = new \Forum\TopicWorker();
         $this->topicWorker->getTopicList();
+        return;
       }
     }
   }

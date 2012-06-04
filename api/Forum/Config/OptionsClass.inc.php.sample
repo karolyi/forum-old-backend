@@ -33,7 +33,8 @@ class Options {
     $this->releaseOuterIdAfter = 1 * 24 * 60 * 60;
 
     // Cache key, if you change it, every file in the clients local storage gets reloaded
-    $this->cacheKey = '12';
+    // $this->cacheKey = '12'; FIXME
+    $this->cacheKey = uniqid('');
     // Available languages
     $this->languageArray = array(
       'hu_HU' => 'Magyar',
