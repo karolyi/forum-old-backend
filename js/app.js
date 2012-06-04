@@ -25,7 +25,11 @@ Forum.backgroundImage = {
   _getSrc: function(url) {
     var tempLink = document.createElement('a');
     tempLink.href = url;
-    return tempLink.pathname;
+    var src = tempLink.pathname;
+    // Explorer workaround
+    if (src[0] != '/')
+      src = '/' + src;
+    return src;
   },
 
   _imageLoaded: function(imageObj) {
