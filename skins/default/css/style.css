@@ -3,20 +3,30 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  font-family: "HelveticaNeue", "Helvetica Neue", Verdana, Helvetica, Arial, sans-serif;
+  font-size: 14px;
 }
 #mainTab {
 }
-#loader {
+#tabsHolder {
+  min-height: 100%;
+  min-width: 100%;
+}
+body > div#tabsHolder > div#contentHolder,
+body > div#tabsHolder > div#loader {
+  display: none;
+}
+#myLoaderDiv {
   background-color: #FFF;
   filter:alpha(opacity=80);
   -moz-opacity: 0.8;
   opacity: 0.8;
-  display: none;
+  height: 100%;
 }
-#loader table,
-#loader table tbody,
-#loader table tbody tr,
-#loader table tbody tr td {
+#myLoaderDiv table,
+#myLoaderDiv table tbody,
+#myLoaderDiv table tbody tr,
+#myLoaderDiv table tbody tr td {
   font-family: "HelveticaNeue", "Helvetica Neue", Verdana, Helvetica, Arial, sans-serif;
   font-size: 14px;
   height: 100%;
@@ -24,13 +34,6 @@ body {
   vertical-align: middle;
   text-align:center;
 }
-#pageHolder {
-  min-height: 100%;
-  min-width: 100%;
-  position: absolute;
-  display: none;
-}
-
 .ui-tabs-panel {
   position: relative;
   min-height: 300px;
@@ -60,13 +63,6 @@ body {
 .topicGroup #topicTable #lastCommentTime {
 }
 .topicGroup #topicTable #lastCommenterName {
-}
-
-#backgroundImage {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -5000;
 }
 
 .ui-widget {
@@ -116,3 +112,28 @@ div.topicGroup table#topicTable tbody tr#topicHeader td#lastCommenterName div#us
 }
 #archivedTopicsLoaderButton {
 }
+body div#mainContentHolder {
+  display: none;
+}
+body > div#pageHolder {
+  min-height: 100%;
+  min-width: 100%;
+}
+
+div#backgroundColor,
+img#backgroundImage {
+  top: 0;
+  left: 0;
+}
+div#backgroundColor {
+  position: absolute;
+  background-color: white;
+  z-index: -5001;
+  bottom: 0;
+  right: 0;
+}
+img#backgroundImage {
+  position: fixed;
+  z-index: -5000;
+}
+
