@@ -111,7 +111,7 @@
         var src = self._getSrc(self._imageObjArray[self._actualImageNumber].attr('src'));
         var infoObj = self._imageAspectsObj[src];
       }
-      console.log(self.element);
+      //console.log(self.element);
       var elementHeight = self.element.height();
       var elementWidth = self.element.width();
       // Height goes 100%

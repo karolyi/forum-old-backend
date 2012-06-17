@@ -16,8 +16,9 @@
 
     _launchTab: function(tabListObjName, options) {
       var self = this;
-      $.when(Forum.codeLoader.load('Forum.widget.' + options['widgetName']))
-      .then(function() {
+      $.when(
+        Forum.codeLoader.load('Forum.widget.' + options['widgetName'])
+      ).then(function() {
         var closable = true;
         if (options.closable === false)
           closable = false;
@@ -40,7 +41,10 @@
         var widgetOptions = options.options;
         widgetOptions.labelObj = tabLabel;
 //        tabContent.TopicList({labelObj:tabLabel}).data('TopicList');
-        self.tabListObj[tabListObjName] = eval('tabContent.' + options['widgetName'] + '(widgetOptions).data(\'' + options['widgetName'] + '\')');
+        var widgetName = options['widgetName'];
+        // Change case of the first letter, because the widget name in jQuery starts with upper case
+        widgetName = widgetName[0].toUpperCase() + widgetName.substr(1);
+        self.tabListObj[tabListObjName] = eval('tabContent.' + widgetName + '(widgetOptions).data(\'' + widgetName + '\')');
         // Open the tab, execute the widget on its content name
       })
     },

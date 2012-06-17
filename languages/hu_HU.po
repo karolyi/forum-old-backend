@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-17 16:58+0200\n"
+"POT-Creation-Date: 2012-06-17 20:42+0200\n"
 "PO-Revision-Date: 2012-06-02 18:54+0100\n"
 "Last-Translator: Laszlo Karolyi <laszlo@karolyi.hu>\n"
 "Language-Team: Hungarian <HU@li.org>\n"
@@ -17,263 +17,268 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: js/app.js:126 js/widget/UserName.js:5 js/widget/TopicName.js:5
+#: js/app.js:126 js/widget/userName.js:5 js/widget/topicName.js:5
 msgid "Loading, please wait ..."
 msgstr "Betöltés, várj ..."
 
-#: js/widget/DateTime.js:51
+#: js/widget/forumTabs.js:26
+msgid "Close tab"
+msgstr "Fül bezárása"
+
+#: js/widget/topicList.js:95
+#, fuzzy
+msgid "Topic list"
+msgstr "Témalista"
+
+#: js/widget/topicList.js:97
+msgid "Highlighted topics"
+msgstr "Kiemelt témák"
+
+#: js/widget/topicList.js:98
+msgid "Bookmarked topics"
+msgstr "Könyvjelzős témák"
+
+#: js/widget/topicList.js:99
+msgid "Not bookmarked topics"
+msgstr "Nem könyvjelzős témák"
+
+#: js/widget/topicList.js:100
+msgid "Normal topics"
+msgstr "Normál témák"
+
+#: js/widget/topicList.js:101
+msgid "Archived topics"
+msgstr "Archivált témák"
+
+#: js/widget/dateTime.js:51
 msgid "dddd, mmmm dd, yyyy, HH:MM:ss Z"
 msgstr "dddd, yyyy. mmmm d., HH:MM:ss Z"
 
-#: js/widget/DateTime.js:60
+#: js/widget/dateTime.js:60
 #, fuzzy
 msgid "less then a minute ago"
 msgstr "kevesebb mint egy perce"
 
-#: js/widget/DateTime.js:62
+#: js/widget/dateTime.js:62
 #, fuzzy, python-format
 msgid "%d minutes ago"
 msgid_plural "%s minutes ago"
 msgstr[0] "%d perce"
 msgstr[1] "%d perce"
 
-#: js/widget/DateTime.js:64
+#: js/widget/dateTime.js:64
 msgid "about an hour ago"
 msgstr "egy órája"
 
-#: js/widget/DateTime.js:68
+#: js/widget/dateTime.js:68
 #, fuzzy, python-format
 msgid "%d hours ago"
 msgid_plural "%s hours ago"
 msgstr[0] "%d órája"
 msgstr[1] "%d órája"
 
-#: js/widget/DateTime.js:71
+#: js/widget/dateTime.js:71
 msgid "\"Yesterday at\" H:MM"
 msgstr "\"tegnap,\" H:MM"
 
-#: js/widget/DateTime.js:73
+#: js/widget/dateTime.js:73
 msgid "ddd \"at\" H:MM"
 msgstr "ddd, H:MM"
 
-#: js/widget/DateTime.js:75
+#: js/widget/dateTime.js:75
 msgid "mmm d \"at\" H:MM"
 msgstr "mmm d., H:MM"
 
-#: js/widget/DateTime.js:76
+#: js/widget/dateTime.js:76
 msgid "mmmm d, yyyy"
 msgstr "yyyy. mmmm d."
 
-#: js/widget/DateTime.js:114
+#: js/widget/dateTime.js:114
 #, fuzzy
 msgid "Sun"
 msgstr "Vas"
 
-#: js/widget/DateTime.js:114
+#: js/widget/dateTime.js:114
 #, fuzzy
 msgid "Mon"
 msgstr "Hét"
 
-#: js/widget/DateTime.js:114
+#: js/widget/dateTime.js:114
 #, fuzzy
 msgid "Tue"
 msgstr "Ked"
 
-#: js/widget/DateTime.js:114
+#: js/widget/dateTime.js:114
 msgid "Wed"
 msgstr "Sze"
 
-#: js/widget/DateTime.js:114
+#: js/widget/dateTime.js:114
 msgid "Thu"
 msgstr "Csü"
 
-#: js/widget/DateTime.js:114
+#: js/widget/dateTime.js:114
 #, fuzzy
 msgid "Fri"
 msgstr "Pén"
 
-#: js/widget/DateTime.js:114
+#: js/widget/dateTime.js:114
 msgid "Sat"
 msgstr "Szo"
 
-#: js/widget/DateTime.js:115
+#: js/widget/dateTime.js:115
 msgid "Sunday"
 msgstr "Vasárnap"
 
-#: js/widget/DateTime.js:115
+#: js/widget/dateTime.js:115
 msgid "Monday"
 msgstr "Hétfő"
 
-#: js/widget/DateTime.js:115
+#: js/widget/dateTime.js:115
 msgid "Tuesday"
 msgstr "Kedd"
 
-#: js/widget/DateTime.js:115
+#: js/widget/dateTime.js:115
 msgid "Wednesday"
 msgstr "Szerda"
 
-#: js/widget/DateTime.js:115
+#: js/widget/dateTime.js:115
 msgid "Thursday"
 msgstr "Csütörtök"
 
-#: js/widget/DateTime.js:115
+#: js/widget/dateTime.js:115
 msgid "Friday"
 msgstr "Péntek"
 
-#: js/widget/DateTime.js:115
+#: js/widget/dateTime.js:115
 msgid "Saturday"
 msgstr "Szombat"
 
-#: js/widget/DateTime.js:118
+#: js/widget/dateTime.js:118
 #, fuzzy
 msgid "Jan"
 msgstr "Jan"
 
-#: js/widget/DateTime.js:118
+#: js/widget/dateTime.js:118
 msgid "Feb"
 msgstr "Feb"
 
-#: js/widget/DateTime.js:118
+#: js/widget/dateTime.js:118
 #, fuzzy
 msgid "Mar"
 msgstr "Már"
 
-#: js/widget/DateTime.js:118
+#: js/widget/dateTime.js:118
 #, fuzzy
 msgid "Apr"
 msgstr "Ápr"
 
-#: js/widget/DateTime.js:118
+#: js/widget/dateTime.js:118
 msgid "May_short"
 msgstr "Máj"
 
-#: js/widget/DateTime.js:118
+#: js/widget/dateTime.js:118
 #, fuzzy
 msgid "Jun"
 msgstr "Jún"
 
-#: js/widget/DateTime.js:118
+#: js/widget/dateTime.js:118
 #, fuzzy
 msgid "Jul"
 msgstr "Júl"
 
-#: js/widget/DateTime.js:118
+#: js/widget/dateTime.js:118
 #, fuzzy
 msgid "Aug"
 msgstr "Aug"
 
-#: js/widget/DateTime.js:118
+#: js/widget/dateTime.js:118
 msgid "Sep"
 msgstr "Szep"
 
-#: js/widget/DateTime.js:118
+#: js/widget/dateTime.js:118
 #, fuzzy
 msgid "Oct"
 msgstr "Okt"
 
-#: js/widget/DateTime.js:118
+#: js/widget/dateTime.js:118
 msgid "Nov"
 msgstr "Nov"
 
-#: js/widget/DateTime.js:118
+#: js/widget/dateTime.js:118
 msgid "Dec"
 msgstr "Dec"
 
-#: js/widget/DateTime.js:119
+#: js/widget/dateTime.js:119
 msgid "January"
 msgstr "január"
 
-#: js/widget/DateTime.js:119
+#: js/widget/dateTime.js:119
 msgid "February"
 msgstr "február"
 
-#: js/widget/DateTime.js:119
+#: js/widget/dateTime.js:119
 msgid "March"
 msgstr "március"
 
-#: js/widget/DateTime.js:119
+#: js/widget/dateTime.js:119
 msgid "April"
 msgstr "április"
 
-#: js/widget/DateTime.js:119
+#: js/widget/dateTime.js:119
 msgid "May"
 msgstr "május"
 
-#: js/widget/DateTime.js:119
+#: js/widget/dateTime.js:119
 msgid "June"
 msgstr "június"
 
-#: js/widget/DateTime.js:119
+#: js/widget/dateTime.js:119
 msgid "July"
 msgstr "július"
 
-#: js/widget/DateTime.js:119
+#: js/widget/dateTime.js:119
 msgid "August"
 msgstr "augusztus"
 
-#: js/widget/DateTime.js:119
+#: js/widget/dateTime.js:119
 msgid "September"
 msgstr "Szeptember"
 
-#: js/widget/DateTime.js:119
+#: js/widget/dateTime.js:119
 msgid "October"
 msgstr "október"
 
-#: js/widget/DateTime.js:119
+#: js/widget/dateTime.js:119
 msgid "November"
 msgstr "november"
 
-#: js/widget/DateTime.js:119
+#: js/widget/dateTime.js:119
 msgid "December"
 msgstr "december"
 
-#: js/widget/TopicList.js:152 js/widget/TopicList.js:154
+#: js/widget/topicGroup.js:29
 #, fuzzy
-msgid "Topic list"
-msgstr "Témalista"
+msgid "Load topics"
+msgstr "Témák betöltése"
 
-#: js/widget/TopicList.js:155
+#: js/widget/topicGroup.js:131
 #, fuzzy
 msgid "Topic name"
 msgstr "Téma neve"
 
-#: js/widget/TopicList.js:156
+#: js/widget/topicGroup.js:132
 msgid "Comment count"
 msgstr "Hozzászólások száma"
 
-#: js/widget/TopicList.js:157
+#: js/widget/topicGroup.js:133
 msgid "Last comment time"
 msgstr "Utolsó hozzászólás"
 
-#: js/widget/TopicList.js:158
+#: js/widget/topicGroup.js:134
 msgid "Last commenter name"
 msgstr "Utolsó hozzászóló"
 
-#: js/widget/TopicList.js:159
-msgid "Highlighted topics"
-msgstr "Kiemelt témák"
-
-#: js/widget/TopicList.js:160
-msgid "Bookmarked topics"
-msgstr "Könyvjelzős témák"
-
-#: js/widget/TopicList.js:161
-msgid "Not bookmarked topics"
-msgstr "Nem könyvjelzős témák"
-
-#: js/widget/TopicList.js:162
-msgid "Normal topics"
-msgstr "Normál témák"
-
-#: js/widget/TopicList.js:163
-msgid "Archived topics"
-msgstr "Archivált témák"
-
-#: js/widget/ForumTabs.js:25
-msgid "Close tab"
-msgstr "Fül bezárása"
-
-#: js/widget/UserName.js:7 js/widget/TopicName.js:7
+#: js/widget/userName.js:7 js/widget/topicName.js:7
 msgid "Failure at initialization!"
 msgstr "Hiba az inicializácó közben!"
 

@@ -149,8 +149,8 @@ _ = function(string) {return string};
         this.loader.show()
         , Forum.codeLoader.load('Forum.model.User')
         , Forum.codeLoader.load('Forum.controller.user')
-        , Forum.codeLoader.load('Forum.widget.ForumTabs')
-        , Forum.codeLoader.load('Forum.widget.BackgroundChanger')
+        , Forum.codeLoader.load('Forum.widget.forumTabs')
+        , Forum.codeLoader.load('Forum.widget.backgroundChanger')
       ).then(function() {
         self.languageSelector = self.root.find('#languageSelectorHolder #languageSelectorForm select');
         for (key in Forum.settings.languageObj) {

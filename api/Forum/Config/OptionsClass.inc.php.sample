@@ -46,7 +46,7 @@ class Options {
     $this->defGuiState = array(
       'tabList' => array(
         'topicList' => array(
-          'widgetName' => 'TopicList',
+          'widgetName' => 'topicList',
           'labelName' => 'Topic list',
           'closable' => true,
           'options' => array(

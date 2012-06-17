@@ -34,15 +34,16 @@ $backgroundImageObj = new \Forum\BackgroundImages();
     </script>
 
 
-    <script type="text/javascript" src="/js/widget/ForumTabs.js"></script>
-    <script type="text/javascript" src="/js/widget/TopicList.js"></script>
+    <script type="text/javascript" src="/js/widget/forumTabs.js"></script>
+    <script type="text/javascript" src="/js/widget/topicList.js"></script>
     <script type="text/javascript" src="/js/model/Topic.js"></script>
-    <script type="text/javascript" src="/js/widget/TopicName.js"></script>
+    <script type="text/javascript" src="/js/widget/topicName.js"></script>
     <script type="text/javascript" src="/js/controller/topic.js"></script>
     <script type="text/javascript" src="/js/model/User.js"></script>
     <script type="text/javascript" src="/js/controller/user.js"></script>
-    <script type="text/javascript" src="/js/widget/DateTime.js"></script>
-    <script type="text/javascript" src="/js/widget/UserName.js"></script>
+    <script type="text/javascript" src="/js/widget/dateTime.js"></script>
+    <script type="text/javascript" src="/js/widget/userName.js"></script>
+    <script type="text/javascript" src="/js/widget/topicGroup.js"></script>
 
 
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" type="text/css" />

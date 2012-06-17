@@ -32,7 +32,7 @@
         if (self._topicStore[topicId] === undefined) {
           notKnownIdArray.push(topicId);
         } else {
-          console.log(self._topicStore);
+          //console.log(self._topicStore);
           if (self._topicStore[topicId]._unsetValues.length)
             // Object not fully loaded, queue for loading
             notKnownIdArray.push(topicId);
