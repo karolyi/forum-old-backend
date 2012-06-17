@@ -158,9 +158,9 @@ class Topic {
    *
    * @return integer The latest comment number
    */
-  function getCurrCommentNumber() {
+  function getLastCommentNumber() {
     $this->getData();
-    return $this->currCommentNumber;
+    return $this->lastCommentNumber;
   }
 
   /**

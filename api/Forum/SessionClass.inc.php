@@ -3,7 +3,7 @@ namespace Forum;
 
 class Session {
   private static $instance;
-  private $currentArray;
+  private $id, $lastActive, $createdAt, $ipAddress, $hostName, $userId, $type, $settings;
 
   private function __construct() {
     $this->db = Db::getInstance();
@@ -17,10 +17,10 @@ class Session {
     // Check the session at creating the singleton instance
     $valid = False;
     if (isset($_COOKIE['forumSessionId'])) {
-      $cursor = $this->db->session->find(array('sessionId' => $_COOKIE['forumSessionId']))->limit(1);
+      $cursor = $this->db->session->find(array('id' => $_COOKIE['forumSessionId']))->limit(1);
       if ($cursor->count()) {
-        $this->currentArray = $cursor->getNext();
-        if ($this->currentArray['lastActive']->sec > time() - $this->configOptions->innerSessionLifetime && $this->currentArray['ipAddress'] == $_SERVER['REMOTE_ADDR']) {
+        $this->setVariables($cursor->getNext());
+        if ($this->lastActive > time() - $this->configOptions->innerSessionLifetime && $this->ipAddress == $_SERVER['REMOTE_ADDR']) {
           $this->update();
           $valid = True;
         }
@@ -30,6 +30,11 @@ class Session {
       $this->createOuter();
   }
 
+  /**
+   * The singleton creator function
+   *
+   * @return Object The singleton instance
+   */
   public static function getInstance() {
     if (!self::$instance) {
       self::$instance = new \Forum\Session();
@@ -76,23 +81,74 @@ class Session {
     // Else return the fround free id
     return $newId;
   }
+  /**
+   * Create an array from the current settings for the MongoDB
+   *
+   * @return array The array to insert in the session table
+   */
+  private function createDbValues() {
+    if (!isset($this->guiState))
+      $this->guiState = $this->configOptions->defGuiState;
+    return array(
+      'lastActive' => new \MongoDate($this->lastActive),
+      'createdAt' => new \MongoDate($this->createdAt),
+      'ipAddress' => $this->ipAddress,
+      'hostName' => $this->hostName,
+      'id' => $this->id,
+      'userId' => $this->userId,
+      'type' => $this->type,
+      'settings' => $this->settings,
+      'guiState' => $this->guiState,
+    );
+  }
+
+  /**
+   * Set the session variables from the MongoDB
+   *
+   * @param array The session data rom the DB
+   */
+  function setVariables($inputArray) {
+    foreach ($inputArray as $key => $value)
+      $this->$key = $value;
+    $this->lastActive = $this->lastActive->sec;
+    $this->createdAt = $this->createdAt->sec;
+  }
+
+  /**
+   * Build the session settings from the user settings
+   *
+   * @return array The settings array to the DB
+   */
+  function pullUserSettings($userId = NULL) {
+    if ($userId === NULL)
+      $userId = $this->configOptions->outerUserId;
+    $userObj = \Forum\User::getById($userId);
+    return array(
+      'topicCommentsPerPage' => $userObj->getTopicCommentsPerPage(),
+      'topicPerGroup' => $userObj->getTopicPerGroup(),
+      'useBackgrounds' => $userObj->getUseBackgrounds(),
+      'showArchivedTopics' => $userObj->getShowArchivedTopics(),
+    );
+  }
 
   /**
    * Create a new not-logged-in session
    */
   function createOuter() {
     $this->outerSessionLock->acquire();
-    $maxId = $this->getNewOuterId();
-    $sessionId = md5(uniqid('', true));
-    $this->currentArray = array(
-      'lastActive' => new \MongoDate(),
-      'createdAt' => new \MongoDate(),
-      'ipAddress' => $_SERVER['REMOTE_ADDR'],
-      'hostName' => gethostbyaddr($_SERVER['REMOTE_ADDR']),
-      'sessionId' => $sessionId,
-      'userId' => $maxId,
-      'type' => $this->OUTER_SESSION);
-    $this->db->session->insert($this->currentArray, array('safe' => true));
+
+    // Create the new session values
+    $this->lastActive = time();
+    $this->createdAt = time();
+    $this->ipAddress = $_SERVER['REMOTE_ADDR'];
+    $this->hostName = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+    $this->id = md5(uniqid('', true));
+    $this->userId = $this->getNewOuterId();
+    $this->type = $this->OUTER_SESSION;
+    $this->settings = $this->pullUserSettings();
+    $this->guiState = $this->configOptions->defGuiState;
+    // Insert the values
+    $this->db->session->insert($this->createDbValues(), array('safe' => true));
     $this->outerSessionLock->release();
   }
 
@@ -101,34 +157,17 @@ class Session {
    * When not older, just update the lastActive value.
    */
   function update() {
-    $oldSessionId = $this->currentArray['sessionId'];
-    if ($this->currentArray['createdAt']->sec < time() - $this->configOptions->refreshInnerSessionAfter) {
-      $this->currentArray['createdAt'] = new \MongoDate();
-      $this->currentArray['sessionId'] = md5(uniqid('', true));
+    $oldId = $this->id;
+    if ($this->createdAt < time() - $this->configOptions->refreshInnerSessionAfter) {
+      $this->createdAt = time(); // = new \MongoDate();
+      $this->id = md5(uniqid('', true));
     }
-    $this->currentArray['lastActive'] = new \MongoDate();
+    $this->lastActive = time(); // = new \MongoDate();
     $this->db->session->update(
-      array('sessionId' => $oldSessionId),
-      $this->currentArray,
+      array('id' => $oldId),
+      $this->createDbValues(),
       array('safe' => true)
     );
-  }
-
-  /**
-   *  Check if the session is valid
-   *
-   *  @return array Logged in (true/false), session id, user object
-   */
-  function check() {
-    $valid = False;
-    if ($valid) {
-      // Session valid
-      $userId = $this->currentArray['type'] == $this->OUTER_SESSION ? $this->configOptions->outerUserId : $this->currentArray['userId'];
-    } else {
-      // Session does not exist or expired, create new one
-      $userObj = new \Forum\User($this->configOptions->outerUserId);
-    }
-    return array($valid, $this->currentArray['sessionId'], $userObj);
   }
 
   /*
@@ -137,8 +176,8 @@ class Session {
    * @return integer User id of session
    */
   function getUserId() {
-    $userId = $this->currentArray['userId'];
-    if ($this->currentArray['type'] == $this->OUTER_SESSION)
+    $userId = $this->userId;
+    if ($this->type == $this->OUTER_SESSION)
       $userId = $this->configOptions->outerUserId;
     return $userId;
   }
@@ -149,7 +188,25 @@ class Session {
    * @return string The session id
    */
   function getId() {
-    return $this->currentArray['sessionId'];
+    return $this->id;
+  }
+
+  /**
+   * Get the settings variables from the current session
+   *
+   * @return array The settings
+   */
+  function getSettings() {
+    return $this->settings;
+  }
+
+  /**
+   * Get the stored gui state
+   *
+   * @return array The stored gui state array
+   */
+  function getGuiState() {
+    return $this->guiState;
   }
 }
 

@@ -12,9 +12,9 @@
         dataType: 'json',
         success: function(data, textStatus, jqXHR) {
           for (var key in data) {
-            var topicInfo = data[key];
-            self._topicStore[topicInfo.id] = new Topic(topicInfo);
-            knownIdObj[topicInfo.id] = self._topicStore[topicInfo.id];
+            var topicObj = data[key];
+            self._topicStore[topicObj.id] = new Topic(topicObj);
+            knownIdObj[topicObj.id] = self._topicStore[topicObj.id];
           }
           return dfd.resolve(knownIdObj);
         },
@@ -29,10 +29,16 @@
       // Lookup the keys
       for(var key in idArray) {
         var topicId = parseInt(idArray[key]);
-        if (self._topicStore[topicId] === undefined)
+        if (self._topicStore[topicId] === undefined) {
           notKnownIdArray.push(topicId);
-        else
-          knownIdObj[topicId] = self._topicStore[topicId];
+        } else {
+          console.log(self._topicStore);
+          if (self._topicStore[topicId]._unsetValues.length)
+            // Object not fully loaded, queue for loading
+            notKnownIdArray.push(topicId);
+          else
+            knownIdObj[topicId] = self._topicStore[topicId];
+        }
       }
       if (notKnownIdArray.length)
         return self.deferObj(notKnownIdArray, knownIdObj);
@@ -47,6 +53,7 @@
         });
       for (var key in options)
         this._topicStore[id].set(key, options[key]);
+      return this._topicStore[id];
     },
   };
 })(jQuery)

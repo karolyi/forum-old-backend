@@ -40,6 +40,21 @@ class Options {
       'hu_HU' => 'Magyar',
       'en_US' => 'English',
     );
+
+    // The default gui setup, when there is none stored in the DB
+    $defaultUserObj = new \Forum\Config\DefaultUser();
+    $this->defGuiState = array(
+      'tabList' => array(
+        'topicList' => array(
+          'widgetName' => 'TopicList',
+          'labelName' => 'Topic list',
+          'closable' => true,
+          'options' => array(
+            'showArchived' => $defaultUserObj->settings['showArchivedTopics'],
+          ),
+        ),
+      ),
+    );
   }
 
   public function getInstance() {

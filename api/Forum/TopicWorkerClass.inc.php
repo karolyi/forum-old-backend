@@ -16,27 +16,17 @@ class TopicWorker {
    *
    * @param boolean If only the archived topics should return
    */
-  function getTopicList($onlyArchived = False) {
+  function getTopicList($onlyArchived = false) {
     $myUserObj = \Forum\User::getById($this->session->getUserId());
-    $searchArray = array('disabled' => False);
+    $searchArray = array('disabled' => false);
     // If not admin, only fetch the non-admin topics
     if (!$myUserObj->getIsAdmin())
-      $searchArray['adminOnly'] = False;
+      $searchArray['adminOnly'] = false;
     if ($onlyArchived)
-      $searchArray['status'] = $this->TOPIC_ARCHIVED;
-    if (!$myUserObj->getShowArchivedTopics() && !isset($searchArray['status']))
-      $searchArray['status'] = array('$nin' => array($this->TOPIC_ARCHIVED));
-    $fieldsToShow = array(
-      'htmlName',
-      'pureName',
-      'topicId',
-      'commentCount',
-      'currCommentTime',
-      'currCommentOwnerId',
-      'currParsedCommentText',
-      'status',
-    );
-    $cursor = $this->db->topicData->find($searchArray, $fieldsToShow)->sort(array('currCommentTime' => -1));
+      $searchArray['groupId'] = $this->TOPIC_ARCHIVED;
+    if (!$myUserObj->getShowArchivedTopics() && !isset($searchArray['groupId']))
+      $searchArray['groupId'] = array('$nin' => array($this->TOPIC_ARCHIVED));
+    $cursor = $this->db->topicData->find($searchArray)->sort(array('currCommentTime' => -1));
     $responseArray = array(
       'topicNormal' => array(),
       'topicHighlighted' => array(),
@@ -46,11 +36,11 @@ class TopicWorker {
     );
     foreach($cursor as $value) {
       unset($value['_id']);
-      if ($value['status'] == $this->TOPIC_NORMAL)
+      if ($value['groupId'] == $this->TOPIC_NORMAL)
         $responseArray['topicNormal'][] = $this->_prepareResultRow($value);
-      if ($value['status'] == $this->TOPIC_HIGHLIGHTED)
+      if ($value['groupId'] == $this->TOPIC_HIGHLIGHTED)
         $responseArray['topicHighlighted'][] = $this->_prepareResultRow($value);
-      if ($value['status'] == $this->TOPIC_ARCHIVED)
+      if ($value['groupId'] == $this->TOPIC_ARCHIVED)
         $responseArray['topicArchived'][] = $this->_prepareResultRow($value);
     }
     print json_encode($responseArray);
@@ -64,7 +54,7 @@ class TopicWorker {
    * @return array The prepared array
    */
   function _prepareResultRow($row) {
-    $userId = $row['currCommentOwnerId'];
+/*    $userId = $row['currCommentOwnerId'];
     $userObj = \Forum\User::getById($userId);
     $row['currCommentUser'] = array(
       'id' => $userId,
@@ -72,6 +62,7 @@ class TopicWorker {
       'quote' => $userObj->getQuote()
     );
     unset($row['currCommentOwnerId']);
+ */
     return $row;
   }
 
@@ -79,6 +70,6 @@ class TopicWorker {
    * Get the archived topics
    */
   function getArchivedTopicList() {
-    $this->getTopicList(True);
+    $this->getTopicList(true);
   }
 }

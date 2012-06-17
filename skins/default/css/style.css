@@ -62,7 +62,7 @@ body > div#tabsHolder > div#loader {
 }
 .topicGroup #topicTable #lastCommentTime {
 }
-.topicGroup #topicTable #lastCommenterName {
+.topicGroup #topicTable #currCommentOwnerId {
 }
 
 .ui-widget {
@@ -86,19 +86,19 @@ body > div#tabsHolder > div#loader {
 div.topicGroup table#topicTable {
   border-collapse: collapse;
 }
-div.topicGroup table#topicTable tbody tr#topicHeader.mouseover {
+div#frame table#topicTable tbody tr#topicHolder:hover {
   background-color:beige;
 }
-div.topicGroup table#topicTable tbody tr#topicHeader {
+div#frame table#topicTable tbody tr#topicHolder {
   cursor: default;
   height: 30px;
 }
-div.topicGroup table#topicTable tbody tr#topicHeader td#topicName,
-div.topicGroup table#topicTable tbody tr#topicHeader td#lastCommenterName {
+table#topicTable tbody tr#topicHolder td#topicName,
+table#topicTable tbody tr#topicHolder td#currCommentOwnerId {
   cursor: pointer;
 }
-div.topicGroup table#topicTable tbody tr#topicHeader td#topicName:hover,
-div.topicGroup table#topicTable tbody tr#topicHeader td#lastCommenterName div#userDiv:hover {
+div.topicGroup table#topicTable tbody tr#topicHolder td#topicName:hover,
+div.topicGroup table#topicTable tbody tr#topicHolder td#currCommentOwnerId:hover {
   text-decoration: underline;
 }
 .ui-tooltip-forum {
@@ -118,6 +118,8 @@ body div#mainContentHolder {
 body > div#pageHolder {
   min-height: 100%;
   min-width: 100%;
+  height: 100%;
+  width: 100%;
 }
 
 div#backgroundColor,

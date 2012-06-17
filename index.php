@@ -4,6 +4,7 @@ $forum = new \Forum();
 $forum->checkSession();
 $sessionObj = \Forum\Session::getInstance();
 $currentUser = \Forum\User::getById($sessionObj->getUserId());
+$currentUser->getSettingsObject();
 $dateTimeZoneObj = new DateTimeZone(ini_get('date.timezone'));
 $backgroundImageObj = new \Forum\BackgroundImages();
 
@@ -29,31 +30,47 @@ $backgroundImageObj = new \Forum\BackgroundImages();
       Forum.settings.usedSkin = '<?php print $currentUser->getUsedSkin()?>';
       Forum.settings.timeZoneDiff = <?php print $dateTimeZoneObj->getOffset(new DateTime('now', new DateTimeZone('GMT'))) / 60?>;
       Forum.settings.bgImageArray = <?php print json_encode($backgroundImageObj->getSource())?>;
+      Forum.settings.userSettings = <?php print json_encode($sessionObj->getSettings())?>;
     </script>
+
+
+    <script type="text/javascript" src="/js/widget/ForumTabs.js"></script>
+    <script type="text/javascript" src="/js/widget/TopicList.js"></script>
+    <script type="text/javascript" src="/js/model/Topic.js"></script>
+    <script type="text/javascript" src="/js/widget/TopicName.js"></script>
+    <script type="text/javascript" src="/js/controller/topic.js"></script>
+    <script type="text/javascript" src="/js/model/User.js"></script>
+    <script type="text/javascript" src="/js/controller/user.js"></script>
+    <script type="text/javascript" src="/js/widget/DateTime.js"></script>
+    <script type="text/javascript" src="/js/widget/UserName.js"></script>
+
+
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" type="text/css" />
     <link rel="stylesheet" href="/js/qTip2/dist/jquery.qtip.min.css" type="text/css" />
     <link rel="stylesheet" href="/skins/<?php print $currentUser->getUsedSkin()?>/css/style.css" type="text/css" />
   </head>
   <body>
-    <?php include($_SERVER['DOCUMENT_ROOT'] . '/skins/' . $currentUser->getUsedSkin() . '/html/loaderTemplate.html')?>
     <div id="pageHolder">
-      <img id="backgroundImage" alt="" />
-      <div id="languageSelectorHolder">
-        <form id="languageSelectorForm">
-        <select></select>
-        </form>
+      <div id="loader">
+        <?php include($_SERVER['DOCUMENT_ROOT'] . '/skins/' . $currentUser->getUsedSkin() . '/html/loaderTemplate.html')?>
       </div>
-      <div id="mainTab">
-        <ul>
-          <li><a href="#settingsTab" data-text="Settings"></a> <span class="ui-icon ui-icon-close">Remove Tab</span></li>
-          <li><a href="#topicListTab" data-text="Topic list"></a></li>
-        </ul>
-        <div id="settingsTab">
-          Settingssss
+      <div id="mainContentHolder">
+        <div></div>
+        <div id="tabsHolder">
+          <div></div>
+          <div id="languageSelectorHolder">
+            <form id="languageSelectorForm">
+            <select></select>
+            </form>
+          </div>
+          <div id="contentHolder">
+            <div id="mainTab">
+              <ul id="tabList">
+              </ul>
+            </div>
+          </div>
         </div>
-        <div id="topicListTab">
-          Topic List Tab
-        </div>
+        <div id="sidebarHolder"></div>
       </div>
     </div>
   </body>

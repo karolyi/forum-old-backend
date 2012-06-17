@@ -9,7 +9,7 @@
 *   http://en.wikipedia.org/wiki/MIT_License
 *   http://en.wikipedia.org/wiki/GNU_General_Public_License
 *
-* Date: Sat Jun 2 20:57:42 2012 +0100
+* Date: Wed Jun 6 19:58:55 2012 +0100
 */
 
 /*jslint browser: true, onevar: true, undef: true, nomen: true, bitwise: true, regexp: true, newcap: true, immed: true, strict: true */
@@ -2394,7 +2394,8 @@ function Modal(api)
 		namespace = globalNamespace + api.id,
 		attr = 'is-modal-qtip',
 		docBody = $(document.body),
-		overlay;
+		focusableSelector = PLUGINS.modal.focusable.join(','),
+		focusableElems = {}, overlay;
 
 	// Setup option set checks
 	api.checks.modal = {
@@ -2404,14 +2405,22 @@ function Modal(api)
 			
 			// Show the modal if not visible already and tooltip is visible
 			elems.overlay.toggle( tooltip.is(':visible') );
-		}
+		},
+		'^content.text$': updateFocusable
 	};
 
-	function focusInputs(elems) {
-		var inputs = tooltip.find('input:visible');
+	function updateFocusable() {
+		focusableElems = $(focusableSelector, tooltip).not('[disabled]').map(function() {
+			return typeof this.focus === 'function' ? this : null;
+		});
+	}
 
-		if(inputs.length < 1) { elems.blur(); }
-		else { inputs.first().focus(); }
+	function focusInputs(blurElems) {
+		// Blurring body element in IE causes window.open windows to unfocus!
+		if(focusableElems.length < 1 && blurElems.length) { blurElems.not('body').blur(); }
+
+		// Focus the inputs
+		else { focusableElems.first().focus(); }
 	}
 
 	function stealFocus(event) {
@@ -2518,6 +2527,9 @@ function Modal(api)
 				});
 			}
 
+			// Update focusable elements
+			updateFocusable();
+
 			return self;
 		},
 
@@ -2584,7 +2596,7 @@ function Modal(api)
 					docBody.bind('focusin'+namespace, stealFocus);
 
 					// Blur the current item and focus anything in the modal we an
-					focusInputs( $('*') );
+					focusInputs( $('body *') );
 				}
 			}
 			else {
@@ -2674,6 +2686,10 @@ PLUGINS.modal.sanitize = function(opts) {
 
 // Base z-index for all modal tooltips (use qTip core z-index as a base)
 PLUGINS.modal.zindex = QTIP.zindex + 1000;
+
+// Defines the selector used to select all 'focusable' elements within the modal when using the show.modal.stealfocus option.
+// 	Selectors initially taken from http://stackoverflow.com/questions/7668525/is-there-a-jquery-selector-to-get-all-elements-that-can-get-focus
+PLUGINS.modal.focusable = ['a[href]', 'area[href]', 'input', 'select', 'textarea', 'button', 'iframe', 'object', 'embed', '[tabindex]', '[contenteditable]']
 
 // Extend original api defaults
 $.extend(TRUE, QTIP.defaults, {

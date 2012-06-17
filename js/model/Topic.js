@@ -15,7 +15,7 @@
       'replyTo',
       'truncateAt',
       'currCommentTime',
-      'currCommentNumber',
+      'lastCommentNumber',
       'currCommentOwnerId',
       'currCommentUniqId',
       'currParsedCommentText',
@@ -30,8 +30,8 @@
     if (this._unsetValues.indexOf(key) == -1)
       return;
     var elementNumber = this._unsetValues.indexOf(key);
-    this[key] = value;
     this._unsetValues.splice(elementNumber, 1);
+    this[key] = value;
   };
 
   Topic.prototype._init = function(options) {

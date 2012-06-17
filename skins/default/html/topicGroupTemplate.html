@@ -1,16 +1,13 @@
-<div class="topicGroup" id="{{topicGroupType}}">
-  <div data-text="{{topicGroupName}}" class="topicGroupName"></div>
-  <table id="topicTable">
-    <thead>
-      <tr id="topicHeader">
-        <th id="topicName" data-text="Topic name"></th>
-        <th id="commentCount" data-text="Comment count"></th>
-        <th id="lastCommentTime" data-text="Last comment time"></th>
-        <th id="lastCommenterName" data-text="Last commenter name"></th>
-      </tr>
-    </thead>
-    <tbody>
-      {{topicElements}}
-    </tbody>
-  </table>
-</div>
+<div id="topicLabel" class="topicGroupName"></div>
+<table id="topicTable">
+  <thead>
+    <tr id="topicHeader">
+      <th id="topicName" data-text="Topic name"></th>
+      <th id="commentCount" data-text="Comment count"></th>
+      <th id="lastCommentTime" data-text="Last comment time"></th>
+      <th id="lastCommenterName" data-text="Last commenter name"></th>
+    </tr>
+  </thead>
+  <tbody id="topicElementsHolder">
+  </tbody>
+</table>

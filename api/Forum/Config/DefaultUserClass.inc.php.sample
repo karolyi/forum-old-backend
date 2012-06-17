@@ -4,23 +4,23 @@ namespace Forum\Config;
 class DefaultUser {
   // The empty user class
   function __construct() {
-    $this->id                   = null;
-    $this->name                 = _('<No name>');
+//    $this->id                   = null;
+    $this->name                 = '<No name>';
     $this->password             = null;
-    $this->votingValue          = '0';
-    $this->votingCount          = '0';
-    $this->voteLimit            = '-5';
+    $this->votingValue          = 0;
+    $this->votingCount          = 0;
+    $this->voteLimit            = -5;
     $this->quote                = '';
     $this->email                = '';
     $this->regId                = '';
-    $this->maxPostsPerDay       = '0';
-    $this->sumComments          = '0';
-    $this->todayComments        = '0';
-    $this->yesterdayComments    = '0';
-    $this->invitations          = '0';
-    $this->inviterUserId        = '0';
-    $this->inviteSuccess        = '0';
-    $this->reminders            = '0';
+    $this->maxPostsPerDay       = 0;
+    $this->sumComments          = 0;
+    $this->todayComments        = 0;
+    $this->yesterdayComments    = 0;
+    $this->invitations          = 0;
+    $this->inviterUserId        = 0;
+    $this->inviteSuccess        = 0;
+    $this->reminders            = 0;
     $this->usedSkin             = 'default';
     $this->ignoredUserIdArray   = array();
     $this->introduction         = '';
@@ -28,6 +28,8 @@ class DefaultUser {
     $this->famIntroduction      = '';
     $this->picemails            = '';
     $this->language             = 'hu_HU';
+    $this->topicPerGroup        = 20;
+    $this->topicCommentsPerPage = 50;
 
     $this->settings                             = array();
     $this->settings['isAdmin']                  = false;
@@ -45,7 +47,8 @@ class DefaultUser {
     $this->settings['activated']                = false;
     $this->settings['approved']                 = false;
     $this->settings['modalsOnly']               = true;
-    $this->settings['showArchivedTopics']        = false;
+    $this->settings['showArchivedTopics']       = false;
+    $this->settings['useBackgrounds']           = true;
   }
 }
 ?>

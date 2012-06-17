@@ -1,591 +1,227 @@
-var Forum = {}, f = Forum;
-Forum.widget = {};
-Forum.settings = {
-  cacheKey: '',
-  displayLanguage: '',
-  languageObj: {},
-  usedSkin: '',
-  timeZoneDiff: 0,
-  bgImageArray: [],
-};
+var Forum = new Object();
+_ = function(string) {return string};
 
-Forum.utils = {
-  htmlEntities: function(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  },
-};
+(function($) {
+  Forum.controller = new Object();
+  Forum.model = new Object();
+  Forum.widget = new Object();
+  Forum.settings = new Object();
+  Forum.storage = {
+    _storage: new Object(),
 
-Forum.backgroundImage = {
-  _loadImageCache: new Object(),
-  _imageAspectsObj: new Object(),
-  _selected: null,
-  _selectedBefore: null,
-  _resizeTimeoutId: null,
+    deferObj: function(key) {
+      // Function for loading files when not in local storage or in the variable scope
+      var dfd = $.Deferred();
+      var key;
 
-  _getSrc: function(url) {
-    var tempLink = document.createElement('a');
-    tempLink.href = url;
-    var src = tempLink.pathname;
-    // Explorer workaround
-    if (src[0] != '/')
-      src = '/' + src;
-    return src;
-  },
+      this.load = function(key) {
+        this.key = key;
+        $.ajax({
+          url: key + '?_=' + (new Date()).getTime(),
+          success: this.setKey,
+          error: function(jqXHR, textStatus, errorThrown) {
+            console.error(textStatus + ': ', jqXHR, errorThrown);
+          }
+        });
+        return dfd.promise();
+      };
 
-  _imageLoaded: function(imageObj) {
-    var src = Forum.backgroundImage._getSrc(imageObj.src);
-    // Store aspects of the background image
-    Forum.backgroundImage._imageAspectsObj[src] = {
-      origHeight: imageObj.height,
-      origWidth: imageObj.width,
-      src: imageObj.src,
-    };
-    Forum.backgroundImage._loadImageCache[src].resolve(src);
-  },
+      this.setKey = function(data, textStatus, jqXHR) {
+        Forum.storage.set(key, data);
+        dfd.resolve(data);
+      };
 
-  load: function (imageSrc) {
-    if (typeof Forum.backgroundImage._loadImageCache[imageSrc] === "undefined") {
+      return this.load(key);
+    },
 
-      preloader         = new Image();
-      preloader.onload  = function() { Forum.backgroundImage._imageLoaded(this) };
-      preloader.onerror = function() { Forum.backgroundImage._deferredObj.reject(this.src)  };
-      preloader.src     = imageSrc;
+    set: function(key, value) {
+      Forum.storage._storage[key] = value;
+      $.jStorage.set(key, value);
+    },
 
-      Forum.backgroundImage._loadImageCache[imageSrc] = $.Deferred();
+    get: function(key) {
+      var value = Forum.storage._storage[key];
+      if (!value) {
+        // Key does not exist, load from local storage
+        var value = $.jStorage.get(key);
+        if (value) {
+          // console.log('key in local storage');
+          Forum.storage.set(key, value);
+        } else {
+          // Key not in local storage, load from server
+          return new this.deferObj(key);
+        }
+      }
+      return $.Deferred().resolve(value);
+    },
+  };
+
+  Forum.codeLoader = {
+    load: function(namespace) {
+      var dfd = $.Deferred();
+      if (window['eval'].call(window, namespace) === undefined) {
+        var namespaceArray = namespace.split('.');
+        var fileName = '/js/' + namespaceArray[1] + '/' + namespaceArray[2] + '.js';
+        $.when(
+          Forum.storage.get(fileName)
+        ).then(function(text) {
+          window['eval'].call(window, text);
+          dfd.resolve();
+        });
+      } else
+        dfd.resolve();
+      return dfd.promise();
     }
-    return Forum.backgroundImage._loadImageCache[imageSrc].promise();
-  },
+  };
 
-  change: function(src) {
-    var bgImage = $('#backgroundImage');
-    var infoObj = Forum.backgroundImage._imageAspectsObj[src];
-    bgImage.removeAttr('src');
-    bgImage.attr('src', '');
-    Forum.backgroundImage.resize(infoObj);
-    bgImage.attr('src', infoObj['src']);
-  },
+  Forum.utils = {
+    htmlEntities: function(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    },
+  };
 
-  resize: function(infoObj) {
-    var bgImage = $('#backgroundImage');
-    if (!infoObj) {
-      // Called from timer, get the current info obj
-      var src = Forum.backgroundImage._getSrc(bgImage.attr('src'));
-      var infoObj = Forum.backgroundImage._imageAspectsObj[src];
-    }
-    var windowHeight = $(window).height();
-    var windowWidth = $(window).width();
-    // Height goes 100%
-    var multiplicator = windowHeight / infoObj['origHeight'];
-    var width = infoObj['origWidth'] * multiplicator;
-    var height = infoObj['origHeight'] * multiplicator;
-    if (width < windowWidth) {
-      // Width is less than window widht, so we resize again to make width 100% and height more than 100%
-      multiplicator = windowWidth / infoObj['origWidth'];
-      width = infoObj['origWidth'] * multiplicator;
-      height = infoObj['origHeight'] * multiplicator;
-    }
-    bgImage.attr('height', height);
-    bgImage.attr('width', width);
-  },
+  Forum.widget.Loader = function(options) {
+    var loaderDivLoaded = false;
+    var root = $(options['root']);
+    var loaderDiv = $(root.find('> div')[0]);
+    var content = $(root.find('> div')[1]);
+    var fadeTime = options['fadeTime'] || 1000;
+    var shownOnce = false;
+    var self = this;
 
-  prepareResize: function() {
-    if (Forum.backgroundImage._resizeTimeoutId) {
-      clearTimeout(Forum.backgroundImage._resizeTimeoutId);
-    }
-    Forum.backgroundImage._resizeTimeoutId = setTimeout(function() {
-      Forum.backgroundImage.resize();
-      Forum.backgroundImage._resizeTimeoutId = null;
-    }, 0);
-  },
-
-  getRandomSrc: function() {
-    var backgroundImagesLength = Forum.settings.bgImageArray.length;
-    if (backgroundImagesLength > 1) {
-      while(Forum.backgroundImage._selected === Forum.backgroundImage._selectedBefore)
-        Forum.backgroundImage._selected = Math.floor(Math.random() * backgroundImagesLength);
-      Forum.backgroundImage._selectedBefore = Forum.backgroundImage._selected;
-    } else {
-      Forum.backgroundImage._selected = 0;
-      Forum.backgroundImage._selectedBefore = 0;
-    }
-    return Forum.settings.bgImageArray[Forum.backgroundImage._selected];
-  },
-}
-
-Forum.storage = {
-  _storage: new Object(),
-
-  deferObj: function(key) {
-    // Function for loading files when not in local storage or in the variable scope
-    var dfd = $.Deferred();
-    var key;
-
-    this.load = function(key) {
-      $.ajax({
-        url: key + '?_=' + (new Date()).getTime(),
-        success: this.setKey
-      });
-      this.key = key;
+    this.show = function() {
+      var dfd = $.Deferred();
+      if (!loaderDivLoaded) {
+        $.when(Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/loaderTemplate.html'))
+        .then(function(loaderDivContent) {
+          if (loaderDiv.html() == '')
+            loaderDiv.html(loaderDivContent);
+          content.fadeOut(fadeTime);
+          loaderDiv.fadeIn(fadeTime, function () { dfd.resolve(); });
+          loaderDivLoaded = true;
+          if (!shownOnce) {
+            self.initTexts();
+            shownOnce = true;
+          }
+        });
+      } else {
+        content.fadeOut(fadeTime);
+        loaderDiv.fadeIn(fadeTime, function () { dfd.resolve(); });
+        if (!shownOnce) {
+          this.initTexts();
+          shownOnce = true;
+        }
+      }
       return dfd.promise();
     };
 
-    this.setKey = function(data, textStatus, jqXHR) {
-      Forum.storage.set(key, data);
-      dfd.resolve(data);
+    this.hide = function() {
+      var dfd = $.Deferred();
+      content.fadeIn(fadeTime);
+      loaderDiv.fadeOut(fadeTime, function() { dfd.resolve(); });
+      return dfd.promise();
     };
 
-    return this.load(key);
-  },
-
-  set: function(key, value) {
-    Forum.storage._storage[key] = value;
-    $.jStorage.set(key, value);
-  },
-
-  get: function(key) {
-    var value = Forum.storage._storage[key];
-    if (!value)
-      value = $.jStorage.get(key);
-    return value;
-  },
-
-  getDeferred: function(key) {
-    var value = Forum.storage._storage[key];
-    if (!value) {
-      // Key does not exist, load from local storage
-      var value = $.jStorage.get(key);
-      if (value) {
-        // console.log('key in local storage');
-        Forum.storage.set(key, value);
-      } else {
-        // Key not in local storage, load from server
-        return this.deferObj(key);
-      }
-    }
-    return $.Deferred().resolve(value);
-  },
-};
-
-Forum.date = {
-  _currTime: 0,
-  _timeZoneSecsDiff: 0,
-  _unixTimes: {},
-  _updateTimeoutId: null,
-
-  init: function() {
-    // console.log((new Date()).getTimezoneOffset());
-    var myTimeZone = (new Date()).getTimezoneOffset();
-    this._timeZoneSecsDiff = (myTimeZone + Forum.settings.timeZoneDiff) * 60;
-    dateFormat.i18n = {
-      dayNames: [
-        _("Sun"), _("Mon"), _("Tue"), _("Wed"), _("Thu"), _("Fri"), _("Sat"),
-        _('Sunday'), _('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday')
-      ],
-      monthNames: [
-        _("Jan"), _("Feb"), _("Mar"), _("Apr"), _("May_short"), _("Jun"), _("Jul"), _("Aug"), _("Sep"), _("Oct"), _("Nov"), _("Dec"),
-        _('January'), _('February'), _('March'), _('April'), _('May'), _('June'), _('July'), _('August'), _('September'), _('October'), _('November'), _('December')
-      ]
+    this.initTexts = function() {
+      loaderDiv.find('[data-text="Loading, please wait ..."]').html(_('Loading, please wait ...'));
     };
-    this.doUpdate();
-  },
-
-  calculateUnixTimes: function() {
-    var nowDate = new Date();
-    this._unixTimes['currTime'] = nowDate;
-    this._unixTimes['thisYearBegin'] = new Date(nowDate.getFullYear(), 0, 1, 0, 0, 0);
-    this._unixTimes['todayBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0, 0);
-    this._unixTimes['yesterdayBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() - 1, 0, 0, 0);
-    this._unixTimes['fourDaysBeforeBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() - 3, 0, 0, 0);
-    this._unixTimes['oneDayBeforeBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() - 1, nowDate.getHours(), nowDate.getMinutes(), nowDate.getSeconds());
-    for (key in this._unixTimes)
-      this._unixTimes[key] = Math.floor(this._unixTimes[key].getTime() / 1000);
-  },
-
-  doUpdate: function() {
-    if (Forum.date._updateTimeoutId)
-      clearTimeout(Forum.date._updateTimeoutId);
-    var nowDate = new Date();
-    var nextMinute = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), nowDate.getMinutes(), 60);
-    var millisecs = nextMinute - nowDate;
-    Forum.date._updateTimeoutId = setTimeout('Forum.date.doUpdate()', millisecs + 500); // Plus 500 for safety
-    Forum.date.calculateUnixTimes();
-    $('[data-time]').each(Forum.date.updateOneElement);
-  },
-
-  longDate:function(time) {
-    var thatTime = (new Date()).setTime(time * 1000);
-    return dateFormat(thatTime, _('dddd, mmmm dd, yyyy, HH:MM:ss Z'))
-  },
-
-  shortDate: function(time) {
-    var timeWithTimeZone = time + this._timeZoneSecsDiff; // Can be that its a subtraction, really
-    var difference = this._unixTimes['currTime'] - timeWithTimeZone;
-    var thatTime = (new Date()).setTime(time * 1000);
-    if (difference < 60)
-      return _('less then a minute ago');
-    if (difference < 3600)
-      return sprintf(Forum.gettext.ngettext('%d minutes ago', '%s minutes ago'), Math.floor(difference / 60));
-    if (difference > 3600 && difference < 7200)
-      return _('about an hour ago');
-    if (timeWithTimeZone > this._unixTimes['oneDayBeforeBegin']) {
-      // Calculate hours difference
-      var hourValue = Math.floor((this._unixTimes['currTime'] - timeWithTimeZone) / 3600);
-      return sprintf(Forum.gettext.ngettext('%d hours ago', '%s hours ago', hourValue), hourValue);
-    }
-    if (timeWithTimeZone > this._unixTimes['yesterdayBegin'])
-      return dateFormat(thatTime, _('"Yesterday at" H:MM'));
-    if (timeWithTimeZone > this._unixTimes['fourDaysBeforeBegin'])
-      return dateFormat(thatTime, _('ddd "at" H:MM'));
-    if (timeWithTimeZone > this._unixTimes['thisYearBegin'])
-      return dateFormat(thatTime, _('mmm d "at" H:MM'));
-    return dateFormat(thatTime, _('mmmm d, yyyy'));
-  },
-
-  updateOneElement: function(key, element) {
-    element = $(element);
-    var time = element.data('time');
-    var shortDate = Forum.date.shortDate(time);
-    var longDate = Forum.date.longDate(time);
-    element.html(shortDate);
-    element.data('longdate', longDate)
-  },
-
-  updateDomPart: function(domRoot) {
-    if (!domRoot)
-      var domRoot = $(document);
-    this.calculateUnixTimes();
-    domRoot.find('[data-time]').each(Forum.date.updateOneElement);
-  },
-}
-
-Forum.widget.TopicList = function(options){
-  var domRoot;
-  var frameTemplate, topicGroupTemplate, topicElementTemplate, topicPageTemplate, topicUserTemplate;
-  this.init = function(options) {
-    try {
-      domRoot = options['domRoot'];
-    } catch (err) {
-      domRoot = $(document);
-    }
-    if (!Forum.gui._languageHookObj['TopicList'])
-      Forum.gui._languageHookObj['TopicList'] = initTexts;
-    $.when(
-      $.ajax({
-        url: '/api/topic',
-        dataType: 'json',
-      }),
-      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/topicGroupTemplate.html'),
-      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/topicPageTemplate.html'),
-      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/topicElementTemplate.html'),
-      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/frameTemplate.html'),
-      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/topicUserTemplate.html'),
-      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/archivedTopicsLoaderTemplate.html')
-    ).then(function(data, res1, res2, res3, res4, res5, res6) {
-      topicGroupTemplate = res1;
-      topicPageTemplate = res2;
-      topicElementTemplate = res3;
-      frameTemplate = res4;
-      topicUserTemplate = res5;
-      archivedTopicsLoaderTemplate = res6;
-      initTopics(data[0]);
-    });
   };
 
-  var loadArchivedtopics = function() {
-    var myDomRoot = domRoot.find('#topicArchived').parent();
-    myDomRoot.html('');
-    myDomRoot.css('min-height', '150px');
-    Forum.loader.add(myDomRoot);
-    Forum.loader.show(myDomRoot);
-    $.when($.ajax('/api/topic/archived'))
-    .then(function(data) {
-      console.log(data);
-    });
-  };
+  Forum.widget.main = {
+    _createContinue: function() {
+      var self = this;
+      self.loader.hide();
+    },
 
-  var parseTopicList = function(topicListArray) {
-    var topicListHtml = '';
-    for (var element in topicListArray) {
-      var currentElement = topicListArray[element];
-      var lastCommenterDiv = topicUserTemplate
-      .replace('{{userName}}', currentElement['currCommentUser']['name'])
-      .replace('{{userId}}', currentElement['currCommentUser']['id']);
-      var currentTopic = topicElementTemplate
-      .replace('{{topicId}}', currentElement['topicId'])
-      .replace('{{commentCount}}', currentElement['commentCount'])
-      .replace('{{topicName}}', currentElement['htmlName'])
-      .replace('{{lastCommentTime}}', currentElement['currCommentTime'])
-      .replace('{{lastCommenterDiv}}', lastCommenterDiv);
-      topicListHtml += currentTopic;
-    }
-    return topicListHtml;
-  };
-
-  var initScripts = function(topicDataArray) {
-    Forum.date.updateDomPart(domRoot);
-    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader').on('mouseover', function() {$(this).addClass('mouseover')});
-    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
-    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader').on('mouseout', function() {$(this).removeClass('mouseover')});
-    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#topicName').on('click', function() {
-      var topicId = $(this).parent().data('topicid');
-      openTopic(topicId);
-    });
-    if (domRoot.find('#archivedTopicsLoaderButton').length)
-      domRoot.find('#archivedTopicsLoaderButton').on('click', function() { loadArchivedtopics() });
-    for (var element in topicDataArray) {
-      for (var topicElement in topicDataArray[element]) {
-        var topicData = topicDataArray[element][topicElement];
-        domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader[data-topicid="' + topicData['topicId'] + '"] td#topicName').data('tooltip', topicData['currParsedCommentText']);
-        domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader[data-topicid="' + topicData['topicId'] + '"] td#lastCommenterName div#userDiv').data('quote', topicData['currCommentUser']['quote']);
+    _create: function() {
+      var self = this;
+      if ($.jStorage.get('cacheKey') != Forum.settings.cacheKey) {
+        $.jStorage.flush();
+        $.jStorage.set('cacheKey', Forum.settings.cacheKey);
       }
-    }
-    // Topic tooltip
-    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#topicName').qtip({
-      content: {
-        text: function (api) {
-          return $(this).data('tooltip');
-        },
-      },
-      position: {
-        my: 'left center',
-        at: 'right center',
-      },
-      style: {
-        classes: 'ui-tooltip-shadow ui-tooltip-rounded ui-tooltip-light ui-tooltip-forum'
-      }
-    });
-    // Username tooltip
-    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#lastCommenterName div#userDiv').qtip({
-      content: {
-        text: function (api) {
-          var retValue = Forum.utils.htmlEntities($(this).data('quote'));
-          if (retValue == '')
-            retValue = '-';
-          return retValue;
-        },
-      },
-      position: {
-        my: 'right center',
-        at: 'left center',
-      },
-      style: {
-        classes: 'ui-tooltip-shadow ui-tooltip-rounded ui-tooltip-light ui-tooltip-forum'
-      }
-    });
-    // Time tooltip
-    domRoot.find('div.topicGroup table#topicTable tbody tr#topicHeader[data-topicid] td#lastCommentTime').qtip({
-      content: {
-        text: function (api) {
-          return $(this).data('longdate');
-        },
-      },
-      position: {
-        my: 'bottom center',
-        at: 'top center',
-      },
-      style: {
-        classes: 'ui-tooltip-shadow ui-tooltip-rounded ui-tooltip-light ui-tooltip-forum'
-      }
-    });
-  };
-
-  var initTopics = function(topicDataArray) {
-    var topicTypeArray = ['topicHighlighted', 'topicNormal', 'topicBookmarked', 'topicNotBookmarked', 'topicArchived'];
-    var topicGroupNameArray = ['Highlighted topics', 'Normal topics', 'Bookmarked topics', 'Not bookmarked topics', 'Archived topics'];
-    var topicHtml = topicPageTemplate;
-    for (var element in topicTypeArray) {
-      var topicType = topicTypeArray[element];
-      var parsedTopicHtml = parseTopicList(topicDataArray[topicType]);
-      var htmlWithFrame = '';
-      if (parsedTopicHtml != '') {
-        var topicGroupHtml = topicGroupTemplate
-          .replace('{{topicGroupType}}', topicType)
-          .replace('{{topicGroupName}}', topicGroupNameArray[element])
-          .replace('{{topicElements}}', parsedTopicHtml);
-        var htmlWithFrame = frameTemplate.replace('{{content}}', topicGroupHtml);
-      } else {
-        if (topicType == 'topicArchived') {
-          var topicGroupHtml = archivedTopicsLoaderTemplate
-            .replace('{{topicGroupType}}', topicType)
-            .replace('{{topicGroupName}}', topicGroupNameArray[element])
-            .replace('{{topicElements}}', archivedTopicsLoaderTemplate);
-          var htmlWithFrame = frameTemplate.replace('{{content}}', topicGroupHtml);
+      this.root = $(this.element.find('> div#mainContentHolder'));
+      this.loader = new Forum.widget.Loader({
+        root: this.element,
+        fadeTime: 1000,
+      });
+      this.subWidgetObj = new Object();
+      $.when(
+        this.loader.show()
+        , Forum.codeLoader.load('Forum.model.User')
+        , Forum.codeLoader.load('Forum.controller.user')
+        , Forum.codeLoader.load('Forum.widget.ForumTabs')
+        , Forum.codeLoader.load('Forum.widget.BackgroundChanger')
+      ).then(function() {
+        self.languageSelector = self.root.find('#languageSelectorHolder #languageSelectorForm select');
+        for (key in Forum.settings.languageObj) {
+          selected = '';
+          if (key == Forum.settings.displayLanguage)
+            selected = ' selected="selected"';
+          self.languageSelector.append('<option value="' + key + '"' +  selected + '>' + Forum.settings.languageObj[key] + '</option>');
         }
-      }
-      topicHtml = topicHtml.replace('{{' + topicType + '}}', htmlWithFrame);
-    }
-    domRoot.html(topicHtml);
-    initScripts(topicDataArray);
-    initTexts();
-    Forum.loader.hide();
-  };
-
-  var initTexts = function(actDomRoot) {
-    if (!actDomRoot)
-      actDomRoot = domRoot;
-    actDomRoot.find('[data-text="Show archived topics"]').html(_('Show archived topics'));
-    actDomRoot.find('[data-text="Reload topic list"]').html(_('Reload topic list'));
-    actDomRoot.find('[data-text="Highlighted topics"]').html(_('Highlighted topics'));
-    actDomRoot.find('[data-text="Normal topics"]').html(_('Normal topics'));
-    actDomRoot.find('[data-text="Bookmarked topics"]').html(_('Bookmarked topics'));
-    actDomRoot.find('[data-text="Not bookmarked topics"]').html(_('Not bookmarked topics'));
-    actDomRoot.find('[data-text="Archived topics"]').html(_('Archived topics'));
-    actDomRoot.find('[data-text="Topic name"]').html(_('Topic name'));
-    actDomRoot.find('[data-text="Comment count"]').html(_('Comment count'));
-    actDomRoot.find('[data-text="Last comment time"]').html(_('Last comment time'));
-    actDomRoot.find('[data-text="Last commenter name"]').html(_('Last commenter name'));
-//    actDomRoot.find('[data-text=""]').html(_(''));
-  };
-
-  var openTopic = function(topicId) {
-    console.log(topicId);
-  };
-
-  return this.init(options);
-};
-
-Forum.loader = {
-  add: function(domRoot) {
-    if (!domRoot)
-      return;
-    // Only if there is no loader yet
-    if (!domRoot.find('> div#loader').length) {
-      domRoot.prepend(Forum.loader.template);
-      domRoot.find('[data-text="Loading, please wait ..."]').html(_('Loading, please wait ...'));
-    }
-  },
-
-  show: function(domRoot) {
-    if (!domRoot)
-      var domRoot = $('body');
-    domRoot.find('> div#loader:first').fadeIn(1000);
-    domRoot.find('> div#pageHolder:first').fadeOut(1000);
-  },
-
-  hide: function() {
-    if (!domRoot)
-      var domRoot = $('body');
-    domRoot.find('> div#loader:first').fadeOut(1000);
-    domRoot.find('> div#pageHolder:first').fadeIn(1000);
-  },
-};
-
-Forum.gui = {
-  _languageHookObj: new Object(),
-  _tabList: new Object(),
-
-  tabs: {
-    add: function(options) {
-      var mainTab = $('#mainTab');
-      if (options['closable']) {
-        mainTab.tabs('option', 'tabTemplate', '<li><a href="#{href}" data-text="#{label}"></a> <span class="ui-icon ui-icon-close" data-text="Close tab">' + _('Close tab') + '</span></li>');
-      } else {
-        mainTab.tabs('option', 'tabTemplate', '<li><a href="#{href}" data-text="#{label}"></a></li>');
-      }
-      mainTab.tabs('add', options['tabId'], options['tabName']);
-      $('[data-text="' + options['tabName'] + '"]').html(Forum.gettext.gettext(options['tabName']));
-    },
-
-    close: function(tabName) {
-      // Remove the # character from the href
-      tabName = tabName.substr(1);
-      var mainTab = $('#mainTab');
-      mainTab.tabs("remove", tabName);
-    },
-
-    initContent: function(tabName, options) {
-      if (options['moduleName'] = 'topicList') {
-        Forum.gui._tabList[tabName] = new Forum.widget.TopicList(options['options']);
-      }
-    },
-
-  },
-
-  init: function() {
-    Forum.loader.show();
-    if ($.jStorage.get('cacheKey') != Forum.settings.cacheKey) {
-      $.jStorage.flush();
-      $.jStorage.set('cacheKey', Forum.settings.cacheKey);
-    }
-    $.when(
-      Forum.storage.getDeferred('/languages/' + Forum.settings.displayLanguage + '.json'),
-      Forum.backgroundImage.load(Forum.backgroundImage.getRandomSrc()),
-      Forum.storage.getDeferred('/skins/' + Forum.settings.usedSkin + '/html/loaderTemplate.html')
-    ).then(function(res1, res2, res3) {
-      Forum.loader.template = res3;
-      Forum.backgroundImage.change(res2);
-      Forum.gui.launch();
-    });
-  },
-
-  changeLanguage: function() {
-    Forum.settings.displayLanguage = $('#languageSelectorForm > select').val();
-    var localeUrl = '/languages/' + Forum.settings.displayLanguage + '.json';
-    $.when(
-      Forum.storage.getDeferred(localeUrl)
-    ).then(function(localeData) {
-      Forum.gettext = new Gettext({
-        domain: Forum.settings.displayLanguage,
-        locale_data: JSON.parse(localeData)
+        self.languageSelector.bind('change', function() { self._changeLanguage.call(self) });
+        self._changeLanguage.call(self);
+        self.subWidgetObj.backgroundChanger = self.backgroundChanger = $('body > div#pageHolder').BackgroundChanger({
+          bgImageArray: Forum.settings.bgImageArray,
+          fadeTime: 3000,
+          changeTime: 5 * 60 * 1000,
+        }).data('BackgroundChanger');
+        self.subWidgetObj.tabsWidget = self.root.find('> div#tabsHolder').ForumTabs().data('ForumTabs');
+        if (Forum.settings.userSettings.useBackgrounds) {
+          $.when(
+            self.subWidgetObj.backgroundChanger.change()
+          ).then(function() {
+            self._createContinue();
+            self.subWidgetObj.backgroundChanger.startChanging();
+          });
+        } else {
+          self._createContinue();
+        }
       });
-      Forum.gui.initTexts();
-      Forum.date.init();
-    });
-  },
 
-  initTexts: function (domRoot) {
-    if (!domRoot)
-      domRoot = $(document);
-    domRoot.find('[data-text="Loading, please wait ..."]').html(_('Loading, please wait ...'));
-    domRoot.find('[data-text="Settings"]').html(_('Settings'));
-    domRoot.find('[data-text="Topic list"]').html(_('Topic list'));
-    for (key in Forum.gui._languageHookObj)
-      Forum.gui._languageHookObj[key](domRoot);
-  },
+      $.Widget.prototype._create.call(this);
+    },
 
-  launch: function() {
-    $(window).resize(function(eventObj) {
-      Forum.backgroundImage.prepareResize(eventObj);
-    });
-    setInterval(function() {
-      var newSrc = Forum.backgroundImage.getRandomSrc();
-      $.when(Forum.backgroundImage.load(newSrc))
-      .then(function(src){
-        Forum.backgroundImage.change(src);
+    _changeLanguage: function() {
+      var self = this;
+      Forum.settings.displayLanguage = self.languageSelector.val();
+      var localeUrl = '/languages/' + Forum.settings.displayLanguage + '.json';
+      $.when(
+        Forum.storage.get(localeUrl)
+      ).then(function(localeData) {
+        Forum.gettext = new Gettext({
+          domain: Forum.settings.displayLanguage,
+          locale_data: JSON.parse(localeData)
+        });
+        _ = function(msgid) {
+          return Forum.gettext.gettext(msgid);
+        };
+        self.initTexts();
+        for (var widgetId in self.subWidgetObj) {
+          self.subWidgetObj[widgetId]._changeLanguage();
+        if ($.Forum.TopicName)
+          $.Forum.TopicName.instances.forEach(function(instance) {
+            instance._changeLanguage();
+          });
+        if ($.Forum.UserName)
+          $.Forum.UserName.instances.forEach(function(instance) {
+            instance._changeLanguage();
+          });
+        if ($.Forum.DateTime)
+          $.Forum.DateTime._changeLanguage();
+        }
       });
-    }, 5 * 60 * 1000);
-    Forum.gettext = new Gettext({
-      domain: Forum.settings.displayLanguage,
-      locale_data: JSON.parse(Forum.storage.get('/languages/' + Forum.settings.displayLanguage + '.json'))
-    });
-    _ = function(msgid) {
-      return Forum.gettext.gettext(msgid);
-    }
-    Forum.gui.initTexts();
-//    $('#mainTab').tabs({fx: { opacity: 'toggle' }}).find( ".ui-tabs-nav" ).sortable({ axis: "x" });
-    $('#mainTab').tabs().find( ".ui-tabs-nav" ).sortable({ axis: "x" });
-    for (key in Forum.settings.languageObj) {
-      selected = '';
-      if (key == Forum.settings.displayLanguage)
-        selected = ' selected="selected"';
-      $('#languageSelectorForm > select').append('<option value="' + key + '"' +  selected + '>' + Forum.settings.languageObj[key] + '</option>')
-    }
-    $( "#mainTab span.ui-icon-close" ).live( "click", function() {
-      var tabName = $(this).parent().find('a:first').attr('href');
-      Forum.gui.tabs.close(tabName);
-    });
-    $('#languageSelectorForm > select').on('change', Forum.gui.changeLanguage);
-    $('#mainTab').tabs('select', 'topicListTab');
-    Forum.gui.tabs.initContent('topicListTab', {
-      moduleName:'topicList',
-      options: {
-        domRoot: $('#topicListTab'),
-      }
-    });
-    Forum.date.init();
-  },
-}
+    },
 
-var _ = $.noop;
+    initTexts: function() {
+      var self = this;
+      self.loader.initTexts();
+    },
+  };
 
-$(document).ready(Forum.gui.init);
+  $.widget('Forum.Main', Forum.widget.main);
+})(jQuery);
+
+$(document).ready(function() {
+  $('body > div#pageHolder').Main();
+})

@@ -12,10 +12,8 @@
         dataType: 'json',
         success: function(data, textStatus, jqXHR) {
           for (var key in data) {
-            self.userStore[data[key].id] = new User({
-              name: data[key].name,
-              quote: data[key].quote,
-            });
+            var userObj = data[key]
+            self.userStore[userObj.id] = new User(userObj);
             knownIdObj[data[key].id] = self.userStore[data[key].id];
           }
           return dfd.resolve(knownIdObj);
@@ -31,10 +29,15 @@
       // Lookup the keys
       for(var key in idArray) {
         var userId = parseInt(idArray[key]);
-        if (self.userStore[userId] === undefined)
+        if (self.userStore[userId] === undefined) {
           notKnownIdArray.push(userId);
-        else
-          knownIdObj[userId] = self.userStore[userId];
+        } else {
+          if (self.userStore[userId]._unsetValues.length)
+            // Not all values set, queue for loading
+            notKnownIdArray.push(userId);
+          else
+            knownIdObj[userId] = self.userStore[userId];
+        }
       }
       if (notKnownIdArray.length)
         return self.deferObj(notKnownIdArray, knownIdObj);
