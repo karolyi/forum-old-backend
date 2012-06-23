@@ -15,6 +15,7 @@
         , Forum.codeLoader.load('Forum.widget.topicName')
         , Forum.codeLoader.load('Forum.model.Topic')
         , Forum.codeLoader.load('Forum.controller.topic')
+        , Forum.codeLoader.load('Forum.widget.userName')
       ).then(function() {
         self.loadTopics();
         self._changeLanguage();
@@ -65,9 +66,13 @@
       $.when(
         Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/topicPageTemplate.html')
         , Forum.codeLoader.load('Forum.widget.topicGroup')
+        , Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/topicGroupTemplate.html')
+        , Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/topicElementTemplate.html')
+        , Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/frameTemplate.html')
       ).then(function(topicPageTemplate) {
         var orderArray = ['topicHighlighted', 'topicBookmarked', 'topicNotBookmarked', 'topicNormal', 'topicArchived'];
         var topicPageHtml = $(topicPageTemplate);
+        self.root.append(topicPageHtml);
         orderArray.forEach(function(topicGroupType) {
           var topicGroupArray = topicListObj[topicGroupType];
           var topicGroupTypeHolder = topicPageHtml.find('#' + topicGroupType);
@@ -77,7 +82,7 @@
           if (topicGroupType == 'topicArchived')
             if (!Forum.settings.userSettings.showArchivedTopics)
               expand = false;
-          topicGroupInstance = topicGroupTypeHolder.TopicGroup({
+          var topicGroupInstance = topicGroupTypeHolder.TopicGroup({
             expand: expand,
             userListObj: userListObj,
             topicGroupArray: topicGroupArray,
@@ -85,7 +90,6 @@
           }).data('TopicGroup');
           self.topicGroupInstanceArray.push(topicGroupInstance);
         });
-        self.root.append(topicPageHtml);
         self._changeLanguage();
         self.loader.hide();
       });

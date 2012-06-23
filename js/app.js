@@ -1,5 +1,5 @@
 var Forum = new Object();
-_ = function(string) {return string};
+var _ = function(string) {return string};
 
 (function($) {
   Forum.controller = new Object();
@@ -11,24 +11,20 @@ _ = function(string) {return string};
 
     deferObj: function(key) {
       // Function for loading files when not in local storage or in the variable scope
-      var dfd = $.Deferred();
-      var key;
-
       this.load = function(key) {
-        this.key = key;
+        var self = this;
+        var dfd = $.Deferred();
         $.ajax({
           url: key + '?_=' + (new Date()).getTime(),
-          success: this.setKey,
+          success: function(data, textStatus, jqXHR) {
+            Forum.storage.set(key, data);
+            dfd.resolve(data);
+          },
           error: function(jqXHR, textStatus, errorThrown) {
             console.error(textStatus + ': ', jqXHR, errorThrown);
           }
         });
         return dfd.promise();
-      };
-
-      this.setKey = function(data, textStatus, jqXHR) {
-        Forum.storage.set(key, data);
-        dfd.resolve(data);
       };
 
       return this.load(key);
@@ -59,17 +55,15 @@ _ = function(string) {return string};
   Forum.codeLoader = {
     load: function(namespace) {
       var dfd = $.Deferred();
-      if (window['eval'].call(window, namespace) === undefined) {
-        var namespaceArray = namespace.split('.');
-        var fileName = '/js/' + namespaceArray[1] + '/' + namespaceArray[2] + '.js';
-        $.when(
-          Forum.storage.get(fileName)
-        ).then(function(text) {
-          window['eval'].call(window, text);
-          dfd.resolve();
-        });
-      } else
-        dfd.resolve();
+      var namespaceArray = namespace.split('.');
+      var fileName = '/js/' + namespaceArray[1] + '/' + namespaceArray[2] + '.js';
+      yepnope({
+        test: window['eval'].call(window, namespace),
+        nope: fileName,
+        complete: function() {
+          dfd.resolve()
+        },
+      });
       return dfd.promise();
     }
   };
@@ -148,9 +142,11 @@ _ = function(string) {return string};
       $.when(
         this.loader.show()
         , Forum.codeLoader.load('Forum.model.User')
+        , Forum.codeLoader.load('Forum.model.Topic')
         , Forum.codeLoader.load('Forum.controller.user')
         , Forum.codeLoader.load('Forum.widget.forumTabs')
         , Forum.codeLoader.load('Forum.widget.backgroundChanger')
+        , Forum.codeLoader.load('Forum.widget.dateTime')
       ).then(function() {
         self.languageSelector = self.root.find('#languageSelectorHolder #languageSelectorForm select');
         for (key in Forum.settings.languageObj) {

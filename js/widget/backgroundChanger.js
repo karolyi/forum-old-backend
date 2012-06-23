@@ -79,6 +79,8 @@
         preloader.onload  = function() { self._imageLoaded(this) };
         preloader.onerror = function() { self._deferredObj.reject(this.src)  };
         preloader.src     = imageSrc;
+//        if (preloader.complete)
+//          this._imageLoaded(preloader);
 
         self._loadImageCache[imageSrc] = $.Deferred();
       }

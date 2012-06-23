@@ -63,6 +63,7 @@
         };
         var topicElementArray = new Array();
         self.options.topicGroupArray.forEach(function(topicObj) {
+//          console.log(topicElementTemplate);
           var topicElementHtml = $(topicElementTemplate);
           // Fill the topic image
           topicElementHtml.find('#topicName').TopicName({
