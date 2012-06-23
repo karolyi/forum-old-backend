@@ -69,6 +69,7 @@
           topicElementHtml.find('#topicName').TopicName({
             topicObj: topicObj,
             display: 'htmlName',
+            click: 'openTopic',
             tooltip: {
               content: 'currParsedCommentText',
               position: {

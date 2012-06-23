@@ -34,6 +34,19 @@
           };
           this.element.qtip(this.options.tooltip);
         }
+        if (this.options.click == 'openTopic') {
+          this.element.click(function() {
+            var topicId = self.options.id;
+            Forum.widgetInstances.tabsWidget.launchTab('topicComments_' + topicId, {
+              widgetName: 'topicComments',
+              closable: true,
+              options: {
+                showNewest: true,
+                topicObj: self.options.topicObj,
+              },
+            });
+          });
+        }
       } else {
         if (this.options.display == 'currCommentTime') {
           this.element.DateTime({
@@ -50,8 +63,9 @@
 
     options: {
       id: null,
-      // The topic object can be directly given, so the widget wont launch a load when the topic object is not fully loaded
+      // The topic object can be directly given, so the widget wont launch a load request when the topic object is not fully loaded
       topicObj: null,
+      click: null,
       display: 'htmlName',
       /**
        * Except for the content, all other object variables are passed to the qTip2 initialization. So, for example:

@@ -12,6 +12,7 @@
 
     _create: function() {
       var self = this;
+      Forum.widgetInstances.backgroundChanger = this;
 //      if (Forum.settings.userSettings.useBackgrounds)
       if (!this.element.find('> img#backgroundImage').length) {
         // Create the image holder
@@ -25,6 +26,11 @@
       $(window).resize(function() {self.prepareResize()})
       this.nextRandom();
       $.Widget.prototype._create.call(this);
+    },
+
+    destroy: function() {
+      delete(Forum.widgetInstances.backgroundChanger);
+      $.Widget.prototype.destroy.call(this);
     },
 
     start: function() {
@@ -109,7 +115,7 @@
     resize: function(infoObj) {
       var self = this;
       if (!infoObj) {
-        // Called from timer, get the current info obj
+        // When called from timer or external, get the current info obj
         var src = self._getSrc(self._imageObjArray[self._actualImageNumber].attr('src'));
         var infoObj = self._imageAspectsObj[src];
       }

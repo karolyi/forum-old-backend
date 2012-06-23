@@ -5,7 +5,10 @@ var _ = function(string) {return string};
   Forum.controller = new Object();
   Forum.model = new Object();
   Forum.widget = new Object();
-  Forum.settings = new Object();
+  Forum.widgetInstances = new Object();
+  Forum.settings = {
+    reloadCache: false,
+  };
   Forum.storage = {
     _storage: new Object(),
 
@@ -57,6 +60,8 @@ var _ = function(string) {return string};
       var dfd = $.Deferred();
       var namespaceArray = namespace.split('.');
       var fileName = '/js/' + namespaceArray[1] + '/' + namespaceArray[2] + '.js';
+      if (Forum.settings.reloadCache)
+        fileName += '?' + (new Date()).getTime();
       yepnope({
         test: window['eval'].call(window, namespace),
         nope: fileName,
@@ -86,12 +91,17 @@ var _ = function(string) {return string};
     this.show = function() {
       var dfd = $.Deferred();
       if (!loaderDivLoaded) {
-        $.when(Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/loaderTemplate.html'))
-        .then(function(loaderDivContent) {
+        $.when(
+          Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/loaderTemplate.html')
+        ).then(function(loaderDivContent) {
           if (loaderDiv.html() == '')
             loaderDiv.html(loaderDivContent);
           content.fadeOut(fadeTime);
-          loaderDiv.fadeIn(fadeTime, function () { dfd.resolve(); });
+          loaderDiv.fadeIn(fadeTime, function () {
+            if (Forum.settings.userSettings.useBackgrounds && Forum.widgetInstances.backgroundChanger)
+              Forum.widgetInstances.backgroundChanger.resize();
+            dfd.resolve();
+          });
           loaderDivLoaded = true;
           if (!shownOnce) {
             self.initTexts();
@@ -100,7 +110,11 @@ var _ = function(string) {return string};
         });
       } else {
         content.fadeOut(fadeTime);
-        loaderDiv.fadeIn(fadeTime, function () { dfd.resolve(); });
+        loaderDiv.fadeIn(fadeTime, function () {
+          if (Forum.settings.userSettings.useBackgrounds && Forum.widgetInstances.backgroundChanger)
+            Forum.widgetInstances.backgroundChanger.resize();
+          dfd.resolve();
+        });
         if (!shownOnce) {
           this.initTexts();
           shownOnce = true;
@@ -112,7 +126,11 @@ var _ = function(string) {return string};
     this.hide = function() {
       var dfd = $.Deferred();
       content.fadeIn(fadeTime);
-      loaderDiv.fadeOut(fadeTime, function() { dfd.resolve(); });
+      loaderDiv.fadeOut(fadeTime, function() {
+        if (Forum.settings.userSettings.useBackgrounds && Forum.widgetInstances.backgroundChanger)
+          Forum.widgetInstances.backgroundChanger.resize();
+        dfd.resolve();
+      });
       return dfd.promise();
     };
 
@@ -132,6 +150,7 @@ var _ = function(string) {return string};
       if ($.jStorage.get('cacheKey') != Forum.settings.cacheKey) {
         $.jStorage.flush();
         $.jStorage.set('cacheKey', Forum.settings.cacheKey);
+        Forum.settings.reloadCache = true;
       }
       this.root = $(this.element.find('> div#mainContentHolder'));
       this.loader = new Forum.widget.Loader({
@@ -213,6 +232,11 @@ var _ = function(string) {return string};
       var self = this;
       self.loader.initTexts();
     },
+    
+    destroy: function() {
+      $.Widget.prototype.destroy.call(this);
+    },
+
   };
 
   $.widget('Forum.Main', Forum.widget.main);

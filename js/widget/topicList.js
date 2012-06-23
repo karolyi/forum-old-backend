@@ -2,7 +2,7 @@
   Forum.widget.topicList = {
     _create: function() {
       var self = this;
-      this.options.labelObj.html('Topic list');
+      this.options.tabLabel.html('Topic list');
       this.element.append('<div id="loader"/>');
       this.root = $('<div id="mainContentHolder"/>');
       this.element.append(this.root);
@@ -24,7 +24,7 @@
     },
 
     options: {
-      labelObj: $(this.element).siblings('ul#tabList').find('> li > a[href="#topicList'),
+      tabLabel: $(this.element).siblings('ul#tabList').find('> li > a[href="#topicList"]'),
       showArchived: false,
     },
 
@@ -96,7 +96,7 @@
     },
 
     _changeLanguage: function() {
-      this.options.labelObj.html(_('Topic list'));
+      this.options.tabLabel.html(_('Topic list'));
       this.loader.initTexts();
       this.element.find('[data-text="Highlighted topics"]').html(_('Highlighted topics'));
       this.element.find('[data-text="Bookmarked topics"]').html(_('Bookmarked topics'));
