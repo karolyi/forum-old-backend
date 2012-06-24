@@ -10,9 +10,9 @@
         root: this.element,
         fadeTime: 1000,
       });
+      this.loader.show()
       $.when(
-        this.loader.show()
-        , Forum.codeLoader.load('Forum.widget.topicName')
+        Forum.codeLoader.load('Forum.widget.topicName')
         , Forum.codeLoader.load('Forum.model.Topic')
         , Forum.codeLoader.load('Forum.controller.topic')
         , Forum.codeLoader.load('Forum.widget.userName')
@@ -55,41 +55,38 @@
         }
         $.when(
           Forum.controller.user.get(userIdArray)
-        ).then(function(userListObj) {
-          self.printTopics(newTopicListObj, userListObj)
+          , Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/topicPageTemplate.html')
+          , Forum.codeLoader.load('Forum.widget.topicGroup')
+          , Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/topicGroupTemplate.html')
+          , Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/topicElementTemplate.html')
+          , Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/frameTemplate.html')
+        ).then(function(userListObj, topicPageTemplate) {
+          self.printTopics(newTopicListObj, userListObj, topicPageTemplate)
         });
       });
     },
 
-    printTopics: function(topicListObj, userListObj) {
+    printTopics: function(topicListObj, userListObj, topicPageTemplate) {
       var self = this;
-      $.when(
-        Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/topicPageTemplate.html')
-        , Forum.codeLoader.load('Forum.widget.topicGroup')
-        , Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/topicGroupTemplate.html')
-        , Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/topicElementTemplate.html')
-        , Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/frameTemplate.html')
-      ).then(function(topicPageTemplate) {
-        var orderArray = ['topicHighlighted', 'topicBookmarked', 'topicNotBookmarked', 'topicNormal', 'topicArchived'];
-        var topicPageHtml = $(topicPageTemplate);
-        self.root.append(topicPageHtml);
-        orderArray.forEach(function(topicGroupType) {
-          var topicGroupArray = topicListObj[topicGroupType];
-          var topicGroupTypeHolder = topicPageHtml.find('#' + topicGroupType);
-          if (!topicGroupTypeHolder.length)
-            topicGroupTypeHolder = topicPageHtml.siblings('#' + topicGroupType);
-          var expand = true;
-          if (topicGroupType == 'topicArchived')
-            if (!Forum.settings.userSettings.showArchivedTopics)
-              expand = false;
-          var topicGroupInstance = topicGroupTypeHolder.TopicGroup({
-            expand: expand,
-            userListObj: userListObj,
-            topicGroupArray: topicGroupArray,
-            myType: topicGroupType,
-          }).data('TopicGroup');
-          self.topicGroupInstanceArray.push(topicGroupInstance);
-        });
+      var orderArray = ['topicHighlighted', 'topicBookmarked', 'topicNotBookmarked', 'topicNormal', 'topicArchived'];
+      var topicPageHtml = $(topicPageTemplate);
+      self.root.append(topicPageHtml);
+      orderArray.forEach(function(topicGroupType) {
+        var topicGroupArray = topicListObj[topicGroupType];
+        var topicGroupTypeHolder = topicPageHtml.find('#' + topicGroupType);
+        if (!topicGroupTypeHolder.length)
+          topicGroupTypeHolder = topicPageHtml.siblings('#' + topicGroupType);
+        var expand = true;
+        if (topicGroupType == 'topicArchived')
+          if (!Forum.settings.userSettings.showArchivedTopics)
+            expand = false;
+        var topicGroupInstance = topicGroupTypeHolder.TopicGroup({
+          expand: expand,
+          userListObj: userListObj,
+          topicGroupArray: topicGroupArray,
+          myType: topicGroupType,
+        }).data('TopicGroup');
+        self.topicGroupInstanceArray.push(topicGroupInstance);
         self._changeLanguage();
         self.loader.hide();
       });

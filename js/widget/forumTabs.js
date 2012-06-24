@@ -9,11 +9,9 @@
       this.tabHolder = this.root.find('> div#mainTab');
       this.tabHolder.tabs().find(".ui-tabs-nav").sortable({ axis: "x" });
       this.tabHolder.tabs({
-        select: function() {
+        show: function() {
           if (Forum.settings.userSettings.useBackgrounds)
-            setTimeout(function() {
-              Forum.widgetInstances.backgroundChanger.resize();
-            }, 0);
+            Forum.widgetInstances.backgroundChanger.resize();
         },
       });
       this._loadGui();
@@ -23,7 +21,7 @@
     _init: function() {
     },
 
-    launchTab: function(tabListObjName, options) {
+    launchTab: function(tabId, options) {
       var self = this;
       $.when(
         Forum.codeLoader.load('Forum.widget.' + options['widgetName'])
@@ -32,7 +30,7 @@
           options.options = new Object();
         var widgetOptions = options.options;
         var widgetName = options['widgetName'];
-        if (!self.tabListObj[tabListObjName]) {
+        if (!self.tabListObj[tabId]) {
           // The tab does not exist yet, create it
           var closable = true;
           if (options.closable === false)
@@ -42,29 +40,31 @@
           } else {
             self.tabHolder.tabs('option', 'tabTemplate', '<li><a href="#{href}" data-text="#{label}"></a></li>');
           }
-          self.tabHolder.tabs('add', '#' + tabListObjName);
-          var tabLabel = self.tabHolder.find('ul > li > a[href="#' + tabListObjName + '"]');
+          self.tabHolder.tabs('add', '#' + tabId);
+          var tabLabel = self.tabHolder.find('ul > li > a[href="#' + tabId + '"]');
           if (closable) {
             tabLabel.siblings("span.ui-icon-close").bind( "click", function() {
               // Cut the beginnig # from the tab id
-              var widgetId = tabLabel.attr('href').substr(1);
-              self.tabListObj[widgetId].destroy();
-              self.tabHolder.tabs('remove', widgetId);
+              // var tabId = tabLabel.attr('href').substr(1);
+              self.tabListObj[tabId].destroy();
+              self.tabHolder.tabs('remove', tabId);
+              delete(self.tabListObj[tabId]);
             });
           }
-          var tabContent = self.tabHolder.find('> div#' + tabListObjName + ':first');
+          var tabContent = self.tabHolder.find('> div#' + tabId + ':first');
           widgetOptions.tabLabel = tabLabel;
           //        tabContent.TopicList({tabLabel:tabLabel}).data('TopicList');
           // Change case of the first letter, because the widget name in jQuery starts with upper case
           widgetName = widgetName[0].toUpperCase() + widgetName.substr(1);
-          self.tabListObj[tabListObjName] = eval('tabContent.' + widgetName + '(widgetOptions).data(\'' + widgetName + '\')');
-          self.tabHolder.tabs('select', tabListObjName);
+          self.tabListObj[tabId] = eval('tabContent.' + widgetName + '(widgetOptions).data(\'' + widgetName + '\')');
+          self.tabHolder.tabs('select', tabId);
           // Open the tab, execute the widget on its content name
         } else {
           // The tab exists, send an update to the existing tab, and select it too
-          self.tabListObj[tabListObjName].update(widgetOptions);
-          self.tabHolder.tabs('select', tabListObjName);
+          self.tabListObj[tabId].update(widgetOptions);
+          self.tabHolder.tabs('select', tabId);
         }
+        $('html, body').animate({scrollTop:0}, 'slow');
       })
     },
 
@@ -86,8 +86,8 @@
           dataType: 'json',
         })
       ).then(function(guiStateObj){
-        for (var tabListObjName in guiStateObj['tabList']) {
-          self.launchTab(tabListObjName, guiStateObj['tabList'][tabListObjName])
+        for (var tabId in guiStateObj['tabList']) {
+          self.launchTab(tabId, guiStateObj['tabList'][tabId])
         }
       });
     },

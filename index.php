@@ -14,8 +14,8 @@ $backgroundImageObj = new \Forum\BackgroundImages();
   <head>
     <title>Hondaforum.hu</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
     <script type="text/javascript" src="/js/jstorage/jstorage.min.js"></script>
     <script type="text/javascript" src="/js/json/json2.js"></script>
     <script type="text/javascript" src="/js/jsgettext/Gettext.js"></script>
@@ -47,7 +47,8 @@ $backgroundImageObj = new \Forum\BackgroundImages();
     <script type="text/javascript" src="/js/widget/topicGroup.js"></script>
 
 -->
-    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" type="text/css" />
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" type="text/css" />
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/pepper-grinder/jquery-ui.css" type="text/css" />
     <link rel="stylesheet" href="/js/qTip2/dist/jquery.qtip.min.css" type="text/css" />
     <link rel="stylesheet" href="/skins/<?php print $currentUser->getUsedSkin()?>/css/style.css" type="text/css" />
   </head>

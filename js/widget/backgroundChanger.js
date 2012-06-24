@@ -80,6 +80,7 @@
     load: function (imageSrc) {
       var self = this;
       if (typeof self._loadImageCache[imageSrc] === "undefined") {
+        self._loadImageCache[imageSrc] = $.Deferred();
 
         preloader         = new Image();
         preloader.onload  = function() { self._imageLoaded(this) };
@@ -88,7 +89,6 @@
 //        if (preloader.complete)
 //          this._imageLoaded(preloader);
 
-        self._loadImageCache[imageSrc] = $.Deferred();
       }
       return self._loadImageCache[imageSrc].promise();
     },
@@ -98,8 +98,9 @@
       self._actualImageNumber = 1 - self._actualImageNumber;
       var dfd = $.Deferred();
       var src = self.options.bgImageArray[self._selected];
-      $.when(self.load(src))
-      .then(function(infoObj) {
+      $.when(
+        self.load(src)
+      ).then(function(infoObj) {
         self._imageObjArray[self._actualImageNumber].removeAttr('src');
         self._imageObjArray[self._actualImageNumber].attr('src', '');
         self.resize(infoObj);
@@ -119,6 +120,7 @@
         var src = self._getSrc(self._imageObjArray[self._actualImageNumber].attr('src'));
         var infoObj = self._imageAspectsObj[src];
       }
+      // console.log(infoObj);
       //console.log(self.element);
       var elementHeight = self.element.height();
       var elementWidth = self.element.width();

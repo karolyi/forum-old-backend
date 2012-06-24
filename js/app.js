@@ -158,9 +158,9 @@ var _ = function(string) {return string};
         fadeTime: 1000,
       });
       this.subWidgetObj = new Object();
+      this.loader.show()
       $.when(
-        this.loader.show()
-        , Forum.codeLoader.load('Forum.model.User')
+        Forum.codeLoader.load('Forum.model.User')
         , Forum.codeLoader.load('Forum.model.Topic')
         , Forum.codeLoader.load('Forum.controller.user')
         , Forum.codeLoader.load('Forum.widget.forumTabs')
@@ -176,7 +176,7 @@ var _ = function(string) {return string};
         }
         self.languageSelector.bind('change', function() { self._changeLanguage.call(self) });
         self._changeLanguage.call(self);
-        self.subWidgetObj.backgroundChanger = self.backgroundChanger = $('body > div#pageHolder').BackgroundChanger({
+        self.subWidgetObj.backgroundChanger = $('body > div#pageHolder').BackgroundChanger({
           bgImageArray: Forum.settings.bgImageArray,
           fadeTime: 3000,
           changeTime: 5 * 60 * 1000,
