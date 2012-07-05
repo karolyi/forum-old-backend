@@ -10,9 +10,9 @@
         root: this.element,
         fadeTime: 1000,
       });
-      this.loader.show()
       $.when(
-        Forum.codeLoader.load('Forum.widget.topicName')
+        this.loader.show()
+        , Forum.codeLoader.load('Forum.widget.topicName')
         , Forum.codeLoader.load('Forum.model.Topic')
         , Forum.codeLoader.load('Forum.controller.topic')
         , Forum.codeLoader.load('Forum.widget.userName')
