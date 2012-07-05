@@ -23,6 +23,7 @@ $backgroundImageObj = new \Forum\BackgroundImages();
     <script type="text/javascript" src="/js/date.format.js"></script>
     <script type="text/javascript" src="/js/qTip2/dist/jquery.qtip.js"></script>
     <script type="text/javascript" src="/js/yepnope/yepnope.1.5.4-min.js"></script>
+    <script type="text/javascript" src="http://cdn.socket.io/stable/socket.io.js"></script>
     <script type="text/javascript" src="/js/app.js"></script>
     <script type="text/javascript">
       Forum.settings.displayLanguage = '<?php print $currentUser->getLanguage()?>';
@@ -33,20 +34,6 @@ $backgroundImageObj = new \Forum\BackgroundImages();
       Forum.settings.bgImageArray = <?php print json_encode($backgroundImageObj->getSource())?>;
       Forum.settings.userSettings = <?php print json_encode($sessionObj->getSettings())?>;
     </script>
-<!--
-
-    <script type="text/javascript" src="/js/widget/forumTabs.js"></script>
-    <script type="text/javascript" src="/js/widget/topicList.js"></script>
-    <script type="text/javascript" src="/js/model/Topic.js"></script>
-    <script type="text/javascript" src="/js/widget/topicName.js"></script>
-    <script type="text/javascript" src="/js/controller/topic.js"></script>
-    <script type="text/javascript" src="/js/model/User.js"></script>
-    <script type="text/javascript" src="/js/controller/user.js"></script>
-    <script type="text/javascript" src="/js/widget/dateTime.js"></script>
-    <script type="text/javascript" src="/js/widget/userName.js"></script>
-    <script type="text/javascript" src="/js/widget/topicGroup.js"></script>
-
--->
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" type="text/css" />
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/pepper-grinder/jquery-ui.css" type="text/css" />
     <link rel="stylesheet" href="/js/qTip2/dist/jquery.qtip.min.css" type="text/css" />

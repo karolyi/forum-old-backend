@@ -29,9 +29,15 @@
       if (this.options.display != 'currCommentTime' && this.options.display != 'ownerId' && this.options.display != 'currCommentOwnerId') {
         this.element.html(this.options.topicObj[this.options.display]);
         if (this.options.tooltip != null) {
-          this.options.tooltip.content = {
-            text: this.options.topicObj[this.options.tooltip.content],
-          };
+          if (!this.options.tooltip.content) 
+            this.options.tooltip.content = {
+              text: function () {
+                return self.options.topicObj[self.options.tooltip.contentId];
+              },
+            };
+//          if (!this.options.tooltip.id)
+//            this.options.tooltip.id = 'topicName';
+
           this.element.qtip(this.options.tooltip);
         }
         if (this.options.click == 'openTopic') {
@@ -71,7 +77,9 @@
        * Except for the content, all other object variables are passed to the qTip2 initialization. So, for example:
        *
        * tooltip: {
-       *   content: 'htmlName',
+       *   id: 'topicName',
+       *   contentId: 'htmlName', // The id in the topic object for the content ...
+       *   content: {} // ... or the normal content object
        *   position: {
        *     my: 'left center',
        *     at: 'right center',

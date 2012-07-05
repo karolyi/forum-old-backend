@@ -71,7 +71,7 @@
             display: 'htmlName',
             click: 'openTopic',
             tooltip: {
-              content: 'currParsedCommentText',
+              contentId: 'currParsedCommentText',
               position: {
                 my: 'left center',
                 at: 'right center',

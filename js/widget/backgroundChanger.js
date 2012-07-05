@@ -120,22 +120,23 @@
         var src = self._getSrc(self._imageObjArray[self._actualImageNumber].attr('src'));
         var infoObj = self._imageAspectsObj[src];
       }
-      // console.log(infoObj);
-      //console.log(self.element);
-      var elementHeight = self.element.height();
-      var elementWidth = self.element.width();
-      // Height goes 100%
-      var multiplicator = elementHeight / infoObj['origHeight'];
-      var width = infoObj['origWidth'] * multiplicator;
-      var height = infoObj['origHeight'] * multiplicator;
-      if (width < elementWidth) {
-        // Width is less than window widht, so we resize again to make width 100% and height more than 100%
-        multiplicator = elementWidth / infoObj['origWidth'];
-        width = infoObj['origWidth'] * multiplicator;
-        height = infoObj['origHeight'] * multiplicator;
+      if (infoObj) {
+        //console.log(self.element);
+        var elementHeight = self.element.height();
+        var elementWidth = self.element.width();
+        // Height goes 100%
+        var multiplicator = elementHeight / infoObj['origHeight'];
+        var width = infoObj['origWidth'] * multiplicator;
+        var height = infoObj['origHeight'] * multiplicator;
+        if (width < elementWidth) {
+          // Width is less than window widht, so we resize again to make width 100% and height more than 100%
+          multiplicator = elementWidth / infoObj['origWidth'];
+          width = infoObj['origWidth'] * multiplicator;
+          height = infoObj['origHeight'] * multiplicator;
+        }
+        self._imageObjArray[self._actualImageNumber].attr('height', height);
+        self._imageObjArray[self._actualImageNumber].attr('width', width);
       }
-      self._imageObjArray[self._actualImageNumber].attr('height', height);
-      self._imageObjArray[self._actualImageNumber].attr('width', width);
     },
 
     prepareResize: function() {
