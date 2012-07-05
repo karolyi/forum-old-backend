@@ -59,7 +59,15 @@ var _ = function(string) {return string};
     load: function(namespace) {
       var dfd = $.Deferred();
       var namespaceArray = namespace.split('.');
-      var fileName = '/js/' + namespaceArray[1] + '/' + namespaceArray[2] + '.js';
+      // Remove the first 'Forum' string
+      namespaceArray.shift();
+      var fileName = '/js/';
+      namespaceArray.forEach(function (element) {
+        if (namespaceArray.indexOf(element) != namespaceArray.length - 1)
+          fileName += element + '/';
+        else
+          fileName += element + '.js';
+      });
       if (Forum.settings.reloadCache)
         fileName += '?' + (new Date()).getTime();
       yepnope({
@@ -166,6 +174,7 @@ var _ = function(string) {return string};
         , Forum.codeLoader.load('Forum.widget.forumTabs')
         , Forum.codeLoader.load('Forum.widget.backgroundChanger')
         , Forum.codeLoader.load('Forum.widget.dateTime')
+        , Forum.codeLoader.load('Forum.socketHandler')
       ).then(function() {
         self.languageSelector = self.root.find('#languageSelectorHolder #languageSelectorForm select');
         for (key in Forum.settings.languageObj) {
