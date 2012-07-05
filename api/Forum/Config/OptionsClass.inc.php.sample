@@ -41,6 +41,10 @@ class Options {
       'en_US' => 'English',
     );
 
+    // The address for the server running socket.io
+    $this->socketServerUrl = 'http://test.hondaforum.hu:8081';
+    
+
     // The default gui setup, when there is none stored in the DB
     $defaultUserObj = new \Forum\Config\DefaultUser();
     $this->defGuiState = array(
@@ -56,6 +60,7 @@ class Options {
       ),
     );
   }
+
 
   public function getInstance() {
     if (!self::$instance) {
