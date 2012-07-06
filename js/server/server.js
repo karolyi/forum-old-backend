@@ -9,9 +9,9 @@ var socketIdSubsObj = new Object();
 
 
 setInterval(function() {
-//  console.log('array length:', socketList.length);
+  console.log('array length:', socketList.length);
   socketList.forEach(function(socket) {
-    socket.emit('test', {meep: 'meepmeep'});
+  socket.emit('userChange', {"id":10683,"name": Math.random(),"quote": Math.random(),"regDate":1326824935,"language":"hu_HU","topicCommentsPerPage":50,"topicPerGroup":20,"votingValue":10,"votingCount":12,"voteLimit":-5,"maxPostsPerDay":0,"sumComments":4,"todayComments":1,"yesterdayComments":0,"invitations":0,"inviterUserId":0,"inviteSuccess":0,"reminders":0,"usedSkin":"default","ignoredUserIdArray":[],"introduction":"Sziasztok Ag\u00f3cs Bence vagyok Szentesr\u0151l. Honda Civic d16z7 1992-es aut\u00f3m van. Nagyon szeretem..\u00e9s szeretn\u00e9k ott lenni id\u00e9n a Hond\u00e1s tal\u00e1lkoz\u00f3kon amennyin csak lehet. Ha tudtok valamit tal\u00e1lkoz\u00f3kr\u00f3l \u00edrjatok. ","settings":{"isAdmin":false,"autoBookmarks":false,"mailsFromOwnTopic":false,"mailsFromReplies":true,"mailsFromModeration":true,"mailsFromMessages":true,"showAnswersAtComments":true,"showRelations":true,"isDisabled":false,"bookmarkedTopicsFirst":true,"showOutsiders":true,"showChat":true,"activated":true,"approved":true,"showArchivedTopics":false,"useBackgrounds":true}});
   });
 }, 5000);
 

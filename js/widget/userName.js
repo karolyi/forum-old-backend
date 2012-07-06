@@ -11,22 +11,34 @@
             Forum.controller.user.get([this.options.id])
           ).then(function(userObjArray) {
             self.options.userObj = userObjArray[self.options.id];
-            self._update();
+            self._initTooltip();
+            this.element.text(this.options.userObj.name);
           });
         } else {
           this.options.id = this.options.userObj.id;
-          self._update();
+          this._initTooltip();
+          this.element.text(this.options.userObj.name);
         }
       }
       $.Forum.UserName.instances.push(this);
       $.Widget.prototype._create(this);
     },
 
-    _update: function() {
-      this.element.text(this.options.userObj.name);
+    _initTooltip: function() {
+      var self = this;
       var tooltipOptions = this.options.tooltip;
-      tooltipOptions.content = Forum.utils.htmlEntities(this.options.userObj.quote) || '-';
+      tooltipOptions.content = {
+        text: Forum.utils.htmlEntities(self.options.userObj.quote) || '-',
+      }
       this.element.qtip(tooltipOptions);
+    },
+
+    _update: function(userId) {
+      // If the update is for this user, update the widget
+      if (userId == this.options.userObj.id) {
+        this.element.text(this.options.userObj.name);
+        this.element.qtip('api').set('content.text', Forum.utils.htmlEntities(this.options.userObj.quote) || '-');
+      }
     },
 
     options: {
@@ -55,5 +67,11 @@
   $.widget('Forum.UserName', Forum.widget.userName);
   $.extend($.Forum.UserName, {
     instances: new Array(),
+  });
+  Forum.socketHandler.subscribe('userChange', function(userObj) {
+    Forum.controller.user.set(userObj);
+    $.Forum.UserName.instances.forEach(function(element) {
+      element._update(userObj.id);
+    });
   });
 })(jQuery)

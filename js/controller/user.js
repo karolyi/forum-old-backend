@@ -44,5 +44,17 @@
       else
         return $.Deferred().resolve(knownIdObj);
     },
+
+    set: function(userObj) {
+      if (userObj.id) {
+        if (this.userStore[userObj.id]) {
+          // Update the existing user object in store
+          this.userStore[userObj.id]._init(userObj);
+        } else {
+          // Create a new user object
+          this.userStore[userObj.id] = new User(userObj);
+        }
+      }
+    },
   };
 })(jQuery)
