@@ -12,7 +12,7 @@ class Options {
 
     // Locking stuff
     // The directory for lockfiles
-    $this->lockFileDir = $_SERVER['DOCUMENT_ROOT'] . '/api/Private/LockDir';
+    $this->lockFileDir = __DIR__ . '/../../Private/LockDir';
     // The maximum time in millisecs to wait for a lock
     $this->lockWaitMaxTime = 2000;
     // Time between lock retry cycles in millisecs

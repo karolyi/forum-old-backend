@@ -1,12 +1,21 @@
 <?php
 spl_autoload_register(function ($className) {
   $className = str_replace('\\', '/', $className) . 'Class.inc.php';
-  include(__DIR__ . '/' . $className);
+  $fileName = __DIR__ . '/' . $className;
+  if (!file_exists($fileName)) {
+    throw new \Exception($className . ' not found.');
+  } else {
+    include(__DIR__ . '/' . $className);
+  }
 });
 
 class Forum {
   function __construct() {
-    $this->configOptions = \Forum\Config\Options::getInstance();
+    try {
+      $this->configOptions = \Forum\Config\Options::getInstance();
+    } catch (\Exception $e) {
+      exit('Configuration not found. Are you sure you set the configuration properly?');
+    }
   }
 
   function checkSession() {
