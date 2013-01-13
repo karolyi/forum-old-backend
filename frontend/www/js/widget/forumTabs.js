@@ -82,7 +82,7 @@
       var self = this;
       $.when(
         $.ajax({
-          url: '/api/session/getGuiState',
+          url: Forum.settings.apiHost + '/session/getGuiState',
           dataType: 'json',
         })
       ).then(function(guiStateObj){

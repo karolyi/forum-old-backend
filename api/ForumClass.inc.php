@@ -16,6 +16,16 @@ class Forum {
     } catch (\Exception $e) {
       exit('Configuration not found. Are you sure you set the configuration properly?');
     }
+    $this->checkOrigin();
+  }
+
+  function checkOrigin() {
+    if (isset($_SERVER['HTTP_ORIGIN'])) {
+      $parsedUrlArray = parse_url($_SERVER['HTTP_ORIGIN']);
+      if (in_array($parsedUrlArray['host'], $this->configOptions->allowedOrigins)) {
+        header('Access-Control-Allow-Origin: ' . $parsedUrlArray['scheme'] . '://' . $parsedUrlArray['host']);
+      }
+    }
   }
 
   function checkSession() {

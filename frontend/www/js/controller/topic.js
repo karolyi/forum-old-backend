@@ -8,7 +8,7 @@
       var self = this;
       var dfd = $.Deferred();
       $.ajax({
-        url: '/api/topic/get/' + notKnownIdArray.join(','),
+        url: Forum.settings.apiHost + '/topic/get/' + notKnownIdArray.join(','),
         dataType: 'json',
         success: function(data, textStatus, jqXHR) {
           for (var key in data) {

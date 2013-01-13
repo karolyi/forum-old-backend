@@ -33,7 +33,7 @@
       var self = this;
       $.when(
         $.ajax({
-          url: '/api/topic/index',
+          url: Forum.settings.apiHost + '/topic/index',
           dataType: 'json',
         })
       ).then(function(topicListObj) {

@@ -43,6 +43,13 @@ class Options {
 
     // The address for the server running socket.io
     $this->socketServerUrl = 'http://test.hondaforum.hu:8081';
+    // The address for the api
+    $this->apiHost = '//api.hondaforum.hu';
+    // The allowed origin hosts for the api
+    $this->allowedOrigins = array(
+      'test.hondaforum.hu',
+      'm.hondaforum.hu',
+    );
     
 
     // The default gui setup, when there is none stored in the DB
