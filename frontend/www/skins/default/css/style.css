@@ -6,14 +6,14 @@ body {
   font-family: "HelveticaNeue", "Helvetica Neue", Verdana, Helvetica, Arial, sans-serif;
   font-size: 14px;
 }
-#mainTab {
+#main-tab-wrapper {
 }
-#tabsHolder {
+#tabs-wrapper {
   min-height: 100%;
   min-width: 100%;
 }
-body > div#tabsHolder > div#contentHolder,
-body > div#tabsHolder > div#loader {
+body > div#page-wrapper > div#loader-wrapper,
+body > div#page-wrapper > div#root-content-wrapper {
   display: none;
 }
 #myLoaderDiv {
@@ -112,29 +112,20 @@ div.topicGroup table#topicTable tbody tr#topicHolder td#currCommentOwnerId:hover
 }
 #archivedTopicsLoaderButton {
 }
-body div#mainContentHolder {
-  display: none;
-}
-body > div#pageHolder {
-  min-height: 100%;
-  min-width: 100%;
-  height: 100%;
-  width: 100%;
-}
 
-div#backgroundColor,
-img#backgroundImage {
+div#background-color,
+img#background-image {
   top: 0;
   left: 0;
 }
-div#backgroundColor {
+div#background-color {
   position: absolute;
   background-color: white;
   z-index: -5001;
   bottom: 0;
   right: 0;
 }
-img#backgroundImage {
+img#background-image {
   position: fixed;
   z-index: -5000;
 }

@@ -16,9 +16,9 @@
 //      if (Forum.settings.userSettings.useBackgrounds)
       if (!this.element.find('> img#backgroundImage').length) {
         // Create the image holder
-        self._imageObjArray[0] = $('<img/>').attr('id', 'backgroundImage').attr('src', '');
-        self._imageObjArray[1] = $('<img/>').attr('id', 'backgroundImage').attr('src', '').hide();
-        self._backgroundColorHolder = $('<div id="backgroundColor"/>')
+        self._imageObjArray[0] = $('<img/>').attr('id', 'background-image').attr('src', '');
+        self._imageObjArray[1] = $('<img/>').attr('id', 'background-image').attr('src', '').hide();
+        self._backgroundColorHolder = $('<div id="background-color"/>')
         this.element.append(self._imageObjArray[0]);
         this.element.append(self._imageObjArray[1]);
         this.element.append(self._backgroundColorHolder);
