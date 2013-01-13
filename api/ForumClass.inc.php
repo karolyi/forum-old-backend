@@ -32,8 +32,7 @@ class Forum {
   function api() {
     $parsedUrlArray = parse_url($_SERVER['REQUEST_URI']);
     $requestArray = explode('/', $parsedUrlArray['path']);
-    // Remove the '' and the 'api' from the beginning of the array
-    array_shift($requestArray);
+    // Remove the '' from the beginning of the array
     array_shift($requestArray);
     header('Content-Type: application/json');
     #header('Content-Type: application/json; charset=utf-8');

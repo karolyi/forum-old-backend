@@ -135,7 +135,6 @@ class Session {
    * Create a new not-logged-in session
    */
   function createOuter() {
-    $this->outerSessionLock->acquire();
 
     // Create the new session values
     $this->lastActive = time();
@@ -143,11 +142,12 @@ class Session {
     $this->ipAddress = $_SERVER['REMOTE_ADDR'];
     $this->hostName = gethostbyaddr($_SERVER['REMOTE_ADDR']);
     $this->id = md5(uniqid('', true));
-    $this->userId = $this->getNewOuterId();
     $this->type = $this->OUTER_SESSION;
     $this->settings = $this->pullUserSettings();
     $this->guiState = $this->configOptions->defGuiState;
     // Insert the values
+    $this->outerSessionLock->acquire();
+    $this->userId = $this->getNewOuterId();
     $this->db->session->insert($this->createDbValues(), array('safe' => true));
     $this->outerSessionLock->release();
   }
