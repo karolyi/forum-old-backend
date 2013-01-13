@@ -1,15 +1,19 @@
 (function($) {
   Forum.widget.topicGroup = {
+    options: {
+      expand: true,
+      userListObj: new Object(),
+      topicGroupArray: new Array(),
+      myType: '',
+    },
+
     _create: function() {
       var self = this;
-      this.element.append('<div id="loader"/>');
-      this.root = $('<div id="mainContentHolder"/>');
+      this.element.append('<div id="loader-wrapper"/>');
+      this.root = $('<div id="content-wrapper"/>');
       this.element.append(this.root);
       this.buttonsArray = new Array();
-      this.loader = new Forum.widget.Loader({
-        root: this.element,
-        fadeTime: 1000,
-      });
+      this._initLoadingScreen();
       if (this.options.expand) {
         this.printTopics();
       } else {
@@ -35,16 +39,18 @@
           });
           self.buttonsArray.push(loaderButton);
           self.root.append(frameHolder);
-          self.loader.hide();
+          self.loadingScreen.hide();
         });
       }
     },
 
-    options: {
-      expand: true,
-      userListObj: new Object(),
-      topicGroupArray: new Array(),
-      myType: '',
+    _initLoadingScreen: function () {
+      var self = this;
+      this.loadingScreen = this.element.find('> #loader-wrapper').LoadingScreen({
+        contentWrapper: self.root,
+        fadeTime: 1000,
+      }).data('LoadingScreen');
+      this.loadingScreen.show();
     },
 
     printTopics: function() {
@@ -124,12 +130,12 @@
         }
         self.root.append(frameHolder);
         self._changeLanguage();
-        self.loader.hide();
+        self.loadingScreen.hide();
       });
     },
 
     _changeLanguage: function() {
-      this.loader.initTexts();
+      this.loadingScreen.initTexts();
       this.element.find('[data-text="Topic name"]').html(_('Topic name'));
       this.element.find('[data-text="Comment count"]').html(_('Comment count'));
       this.element.find('[data-text="Last comment time"]').html(_('Last comment time'));

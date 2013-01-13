@@ -27,7 +27,7 @@
     _init: function() {
     },
 
-    _getWidgetNameObj: function (tabUri) {
+    _parseTabUri: function (tabUri) {
       var tabUriArray = tabUri.split('/');
       // Remove the first '' string
       tabUriArray.shift();
@@ -36,6 +36,7 @@
         widgetName: 'noop',
         closable: false,
         id: '',
+        uri: tabUri,
       };
       switch(tabUriArray[0]) {
         case 'index':
@@ -51,7 +52,7 @@
 
     launchTab: function(tabUri) {
       var self = this;
-      var widgetNameObj = this._getWidgetNameObj(tabUri);
+      var widgetNameObj = this._parseTabUri(tabUri);
       $.when(
         Forum.codeLoader.load('Forum.widget.' + widgetNameObj.fileName)
       ).then(function() {
@@ -60,7 +61,7 @@
         } else {
           // The tab exists, send an update to the existing tab, and select it too
           self.tabListObj[widgetNameObj.id].update(tabUri);
-          self.element.tabs('select', widgetNameObj.id);
+          self.element.tabs('select', '#' + widgetNameObj.id);
         }
         $('html, body').animate({scrollTop:0}, 'slow');
       })
@@ -71,28 +72,28 @@
       // The tab does not exist yet, create it
       this._setNewClosable(widgetNameObj.closable);
 
-      var li = $(this.tabTemplate.replace(/#\{href\}/g, "#" + widgetNameObj.id).replace(/#\{label\}/g, '::'));
-      this.tabLabels.append(li);
-      var aElement = li.find('a');
+      var liElement = $(this.tabTemplate.replace(/#\{href\}/g, "#" + widgetNameObj.id).replace(/#\{label\}/g, '::'));
+      liElement.data('tab-uri', widgetNameObj.uri);
+      this.tabLabels.append(liElement);
+      var aElement = liElement.find('a');
       var contentElement = $('<div/>', {
         id: widgetNameObj.id,
-      }).append('cucc');
+      });
       this.element.append(contentElement);
       this.element.tabs('refresh');
 
       if (widgetNameObj.closable) {
-        li.find('span.ui-icon-close').bind( "click", function(event) {
+        liElement.find('span.ui-icon-close').bind( "click", function(event) {
           contentElement.remove();
-          li.remove();
+          liElement.remove();
           delete(self.tabListObj[widgetNameObj.id]);
         });
       }
       var widgetOptions = {
-        tabElement: aElement,
+        tabElement: liElement,
       };
-      self.tabListObj[widgetNameObj.id] = eval('contentElement.' + widgetNameObj.widgetName + '(widgetOptions).data(\'' + widgetNameObj.widgetName + '\')');
-      self.element.tabs('select', widgetNameObj.id);
-      // Open the tab, execute the widget on its content name
+      self.tabListObj[widgetNameObj.id] = contentElement[widgetNameObj.widgetName](widgetOptions).data(widgetNameObj.widgetName);
+      self.element.tabs('select', '#' + widgetNameObj.id);
     },
 
     _setNewClosable: function (closable) {

@@ -1,17 +1,19 @@
 (function($) {
   Forum.widget.topicList = {
+    options: {
+      tabLabel: $(this.element).siblings('ul#tabList').find('> li > a[href="#topicList"]'),
+      showArchived: false,
+    },
+
     _create: function() {
       var self = this;
       this.options.tabLabel.html('Topic list');
-      this.element.append('<div id="loader"/>');
-      this.root = $('<div id="mainContentHolder"/>');
+      this.element.append('<div id="loader-wrapper"/>');
+      this.root = $('<div id="content-wrapper"/>');
       this.element.append(this.root);
-      this.loader = new Forum.widget.Loader({
-        root: this.element,
-        fadeTime: 1000,
-      });
+      this._initLoadingScreen();
       $.when(
-        this.loader.show()
+        self.loadingScreen.show()
         , Forum.codeLoader.load('Forum.widget.topicName')
         , Forum.codeLoader.load('Forum.model.Topic')
         , Forum.codeLoader.load('Forum.controller.topic')
@@ -23,9 +25,13 @@
       this.topicGroupInstanceArray = new Array();
     },
 
-    options: {
-      tabLabel: $(this.element).siblings('ul#tabList').find('> li > a[href="#topicList"]'),
-      showArchived: false,
+    _initLoadingScreen: function () {
+      var self = this;
+      this.loadingScreen = this.element.find('> #loader-wrapper').LoadingScreen({
+        contentWrapper: self.root,
+        fadeTime: 1000,
+      }).data('LoadingScreen');
+      this.loadingScreen.show();
     },
 
     loadTopics: function() {
@@ -88,13 +94,13 @@
         }).data('TopicGroup');
         self.topicGroupInstanceArray.push(topicGroupInstance);
         self._changeLanguage();
-        self.loader.hide();
+        self.loadingScreen.hide();
       });
     },
 
     _changeLanguage: function() {
       this.options.tabLabel.html(_('Topic list'));
-      this.loader.initTexts();
+      this.loadingScreen.initTexts();
       this.element.find('[data-text="Highlighted topics"]').html(_('Highlighted topics'));
       this.element.find('[data-text="Bookmarked topics"]').html(_('Bookmarked topics'));
       this.element.find('[data-text="Not bookmarked topics"]').html(_('Not bookmarked topics'));
