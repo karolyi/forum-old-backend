@@ -26,6 +26,7 @@ class Forum {
         header('Access-Control-Allow-Origin: ' . $parsedUrlArray['scheme'] . '://' . $parsedUrlArray['host']);
       }
     }
+    header('Access-Control-Allow-Credentials: true');
   }
 
   function checkSession() {

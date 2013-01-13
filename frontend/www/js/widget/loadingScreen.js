@@ -25,8 +25,7 @@
         $.when(
           Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/loaderTemplate.html')
         ).then(function(loaderDivContent) {
-          if (self.element.html() == '')
-            self.element.html(loaderDivContent);
+          self.element.html(loaderDivContent);
           self.loaderDivLoaded = true;
           if (!self.shownOnce) {
             self.initTexts();

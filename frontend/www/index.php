@@ -1,10 +1,6 @@
 <?php
 include_once(__DIR__ . '/../../api/ForumClass.inc.php');
 $forum = new \Forum();
-$forum->checkSession();
-$sessionObj = \Forum\Session::getInstance();
-$currentUser = \Forum\User::getById($sessionObj->getUserId());
-$currentUser->getSettingsObject();
 
 ?>
 <!doctype html>
@@ -33,7 +29,6 @@ $currentUser->getSettingsObject();
   <body>
     <div id="page-wrapper">
       <div id="loader-wrapper">
-        <?php include($_SERVER['DOCUMENT_ROOT'] . '/skins/' . $currentUser->getUsedSkin() . '/html/loaderTemplate.html')?>
       </div>
       <div id="root-content-wrapper">
         <div id="language-selector">

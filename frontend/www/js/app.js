@@ -16,7 +16,7 @@ var _ = function(string) {return string};
   Forum.settings = {
     reloadCache: false,
 
-    _getDefaults: function () {
+    _onLoadGet: function () {
       var self = this;
       this.dfd = $.Deferred();
       $.ajax({
@@ -144,8 +144,9 @@ var _ = function(string) {return string};
       this.root = this.element.find('> div#root-content-wrapper');
       this.myWidgets = new Object();
       $.when(
-        Forum.settings._getDefaults()
+        Forum.settings._onLoadGet()
       ).then(function() {
+        self._loadCss();
         self._loadWidgetCode();
       });
 
@@ -153,20 +154,15 @@ var _ = function(string) {return string};
     },
 
     _loadCss: function () {
-      var dfd = $.Deferred();
       var fileName = '/skins/' + Forum.settings.usedSkin + '/css/style.css';
-          console.log('na', fileName);
-      yepnope({
-        test: fileName,
-        nope: fileName,
-        callback: function (url, result, key) {
-          alert(url);
-        },
-        complete: function() {
-          dfd.resolve()
-        },
+      if (Forum.settings.reloadCache)
+        fileName += '?' + (new Date()).getTime();
+      this.cssElement = $('<link>', {
+        href: fileName,
+        rel: 'stylesheet',
+        type: 'text/css',
       });
-      return dfd.promise();
+      $('html > head', document).append(this.cssElement);
     },
 
     _loadWidgetCode: function () {
@@ -185,7 +181,6 @@ var _ = function(string) {return string};
         , Forum.codeLoader.load('Forum.widget.dateTime')
         , Forum.codeLoader.load('Forum.socketHandler')
         , Forum.codeLoader.load('Forum.widget.loadingScreen')
-        , self._loadCss()
       ).then(function () {
         self._initLoadingScreen();
         self._initLanguageSelector();
@@ -291,5 +286,10 @@ var _ = function(string) {return string};
 })(jQuery);
 
 $(document).ready(function() {
+  $.ajaxSetup({
+    xhrFields: {
+      withCredentials: true,
+    },
+   });
   $('body > div#page-wrapper').Main();
 })
