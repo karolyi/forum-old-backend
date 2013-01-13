@@ -1,6 +1,17 @@
 (function($) {
   Forum.widget.dateTime = {
-    _unixTimes: {},
+    options: {
+      time: Math.floor(((new Date()).getTime()) / 1000),
+      tooltip: {
+        position: {
+          my: 'bottom center',
+          at: 'top center',
+        },
+        style: {
+          classes: 'ui-tooltip-shadow ui-tooltip-rounded ui-tooltip-light ui-tooltip-forum'
+        },
+      },
+    },
 
     _create: function() {
       // console.log((new Date()).getTimezoneOffset());
@@ -22,19 +33,6 @@
       if (elementIndex != -1)
         $.Forum.DateTime.instances.splice(elementIndex, 1);
       $.Widget.prototype.destroy.call(this);
-    },
-
-    options: {
-      time: Math.floor(((new Date()).getTime()) / 1000),
-      tooltip: {
-        position: {
-          my: 'bottom center',
-          at: 'top center',
-        },
-        style: {
-          classes: 'ui-tooltip-shadow ui-tooltip-rounded ui-tooltip-light ui-tooltip-forum'
-        },
-      },
     },
 
     update: function() {
@@ -81,9 +79,11 @@
   $.widget('Forum.DateTime', Forum.widget.dateTime);
   $.extend($.Forum.DateTime, {
     instances: new Array(),
+
     global: {
       _unixTimes: new Object(),
     },
+
     startUpdate: function() {
       if ($.Forum.DateTime.global._updateTimeoutId)
         clearTimeout($.Forum.DateTime.global._updateTimeoutId);
@@ -96,6 +96,7 @@
         widgetObj.update();
       });
     },
+
     calculateUnixTimes: function() {
       var nowDate = new Date();
       $.Forum.DateTime.global._unixTimes['currTime'] = nowDate;
@@ -104,6 +105,7 @@
       $.Forum.DateTime.global._unixTimes['yesterdayBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() - 1, 0, 0, 0);
       $.Forum.DateTime.global._unixTimes['fourDaysBeforeBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() - 3, 0, 0, 0);
       $.Forum.DateTime.global._unixTimes['oneDayBeforeBegin'] = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() - 1, nowDate.getHours(), nowDate.getMinutes(), nowDate.getSeconds());
+      // Translate all values to unix epoch seconds
       for (var key in $.Forum.DateTime.global._unixTimes)
         $.Forum.DateTime.global._unixTimes[key] = Math.floor($.Forum.DateTime.global._unixTimes[key].getTime() / 1000);
     },
