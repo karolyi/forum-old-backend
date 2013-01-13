@@ -1,19 +1,25 @@
 (function($) {
   Forum.widget.forumTabs = {
-    tabListObj: new Object(),
+    options: {
+    },
 
     _create: function() {
-      this.self = this;
+      var self = this;
+      this.tabListObj = {};
       Forum.widgetInstances.tabsWidget = this;
-      this.root = $(this.element.find('> div#content-wrapper'))
-      this.tabHolder = this.root.find('> div#main-tab-wrapper');
-      this.tabHolder.tabs().find(".ui-tabs-nav").sortable({ axis: "x" });
-      this.tabHolder.tabs({
+      this.element.tabs().find(".ui-tabs-nav").sortable({
+        axis: "x",
+        stop: function() {
+          self.element.tabs( "refresh" );
+        }
+      });
+      this.element.tabs({
         show: function() {
           if (Forum.settings.userSettings.useBackgrounds)
             Forum.widgetInstances.backgroundChanger.resize();
         },
       });
+      this.tabLabels = this.element.find('ul#tab-label-list');
       this._loadGui();
       $.Widget.prototype._create.call(this);
     },
@@ -21,52 +27,79 @@
     _init: function() {
     },
 
-    launchTab: function(tabId, options) {
-        console.log(tabId, options);
+    _getWidgetNameObj: function (tabUri) {
+      var tabUriArray = tabUri.split('/');
+      // Remove the first '' string
+      tabUriArray.shift();
+      var widgetNameObj = {
+        fileName: 'noop',
+        widgetName: 'noop',
+        closable: false,
+        id: '',
+      };
+      switch(tabUriArray[0]) {
+        case 'index':
+          widgetNameObj.fileName = 'topicList';
+          widgetNameObj.widgetName = 'TopicList';
+          widgetNameObj.closable = false;
+          widgetNameObj.id = '/index';
+          break;
+      }
+//      widgetNameObj.id = widgetNameObj.id.replace('/', '_');
+      return widgetNameObj;
+    },
+
+    launchTab: function(tabUri) {
       var self = this;
+      var widgetNameObj = this._getWidgetNameObj(tabUri);
       $.when(
-        Forum.codeLoader.load('Forum.widget.' + options['widgetName'])
+        Forum.codeLoader.load('Forum.widget.' + widgetNameObj.fileName)
       ).then(function() {
-        if (!options.options)
-          options.options = new Object();
-        var widgetOptions = options.options;
-        var widgetName = options['widgetName'];
-        if (!self.tabListObj[tabId]) {
-          // The tab does not exist yet, create it
-          var closable = true;
-          if (options.closable === false)
-            closable = false;
-          if (closable) {
-            self.tabHolder.tabs('option', 'tabTemplate', '<li><a href="#{href}" data-text="#{label}"></a> <span class="ui-icon ui-icon-close" data-text="Close tab">' + _('Close tab') + '</span></li>');
-          } else {
-            self.tabHolder.tabs('option', 'tabTemplate', '<li><a href="#{href}" data-text="#{label}"></a></li>');
-          }
-          self.tabHolder.tabs('add', '#' + tabId);
-          var tabLabel = self.tabHolder.find('ul > li > a[href="#' + tabId + '"]');
-          if (closable) {
-            tabLabel.siblings("span.ui-icon-close").bind( "click", function() {
-              // Cut the beginnig # from the tab id
-              // var tabId = tabLabel.attr('href').substr(1);
-              self.tabListObj[tabId].destroy();
-              self.tabHolder.tabs('remove', tabId);
-              delete(self.tabListObj[tabId]);
-            });
-          }
-          var tabContent = self.tabHolder.find('> div#' + tabId + ':first');
-          widgetOptions.tabLabel = tabLabel;
-          //        tabContent.TopicList({tabLabel:tabLabel}).data('TopicList');
-          // Change case of the first letter, because the widget name in jQuery starts with upper case
-          widgetName = widgetName[0].toUpperCase() + widgetName.substr(1);
-          self.tabListObj[tabId] = eval('tabContent.' + widgetName + '(widgetOptions).data(\'' + widgetName + '\')');
-          self.tabHolder.tabs('select', tabId);
-          // Open the tab, execute the widget on its content name
+        if (!self.tabListObj[widgetNameObj.id]) {
+          self._addTab(widgetNameObj);
         } else {
           // The tab exists, send an update to the existing tab, and select it too
-          self.tabListObj[tabId].update(widgetOptions);
-          self.tabHolder.tabs('select', tabId);
+          self.tabListObj[widgetNameObj.id].update(tabUri);
+          self.element.tabs('select', widgetNameObj.id);
         }
         $('html, body').animate({scrollTop:0}, 'slow');
       })
+    },
+
+    _addTab: function (widgetNameObj) {
+      var self = this;
+      // The tab does not exist yet, create it
+      this._setNewClosable(widgetNameObj.closable);
+
+      var li = $(this.tabTemplate.replace(/#\{href\}/g, "#" + widgetNameObj.id).replace(/#\{label\}/g, '::'));
+      this.tabLabels.append(li);
+      var aElement = li.find('a');
+      var contentElement = $('<div/>', {
+        id: widgetNameObj.id,
+      }).append('cucc');
+      this.element.append(contentElement);
+      this.element.tabs('refresh');
+
+      if (widgetNameObj.closable) {
+        li.find('span.ui-icon-close').bind( "click", function(event) {
+          contentElement.remove();
+          li.remove();
+          delete(self.tabListObj[widgetNameObj.id]);
+        });
+      }
+      var widgetOptions = {
+        tabElement: aElement,
+      };
+      self.tabListObj[widgetNameObj.id] = eval('contentElement.' + widgetNameObj.widgetName + '(widgetOptions).data(\'' + widgetNameObj.widgetName + '\')');
+      self.element.tabs('select', widgetNameObj.id);
+      // Open the tab, execute the widget on its content name
+    },
+
+    _setNewClosable: function (closable) {
+      if (closable)
+        this.tabTemplate = '<li><a href="#{href}" data-text="#{label}">#{label}</a><span class="ui-icon ui-icon-close" data-text="Close tab">' + _('Close tab') + '</span></li>';
+      else
+        this.tabTemplate = '<li><a href="#{href}" data-text="#{label}">#{label}</a></li>';
     },
 
     destroy: function() {
@@ -88,7 +121,7 @@
         })
       ).then(function(guiStateObj){
         for (var tabId in guiStateObj.tabList) {
-          self.launchTab(tabId, guiStateObj.tabList[tabId])
+          self.launchTab(guiStateObj.tabList[tabId])
         }
       });
     },

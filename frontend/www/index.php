@@ -20,7 +20,7 @@ $currentUser->getSettingsObject();
     <script type="text/javascript" src="/js/sprintf.js"></script>
     <script type="text/javascript" src="/js/date.format.js"></script>
     <script type="text/javascript" src="/js/qTip2/dist/jquery.qtip.js"></script>
-    <script type="text/javascript" src="/js/yepnope/yepnope.1.5.4-min.js"></script>
+    <script type="text/javascript" src="/js/yepnope.js/yepnope.1.5.4-min.js"></script>
     <script type="text/javascript" src="<?php print $forum->configOptions->socketServerUrl?>/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="/js/app.js"></script>
     <script type="text/javascript">
@@ -29,7 +29,6 @@ $currentUser->getSettingsObject();
     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" type="text/css" />
     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1/themes/pepper-grinder/jquery-ui.css" type="text/css" />
     <link rel="stylesheet" href="/js/qTip2/dist/jquery.qtip.min.css" type="text/css" />
-    <link rel="stylesheet" href="/skins/<?php print $currentUser->getUsedSkin()?>/css/style.css" type="text/css" />
   </head>
   <body>
     <div id="page-wrapper">
@@ -37,19 +36,14 @@ $currentUser->getSettingsObject();
         <?php include($_SERVER['DOCUMENT_ROOT'] . '/skins/' . $currentUser->getUsedSkin() . '/html/loaderTemplate.html')?>
       </div>
       <div id="root-content-wrapper">
-        <div></div>
-        <div id="tabs-wrapper">
-          <div id="language-selector">
-            <form id="selector-form">
-            <select></select>
-            </form>
-          </div>
-          <div id="content-wrapper">
-            <div id="main-tab-wrapper">
-              <ul id="tab-list">
-              </ul>
-            </div>
-          </div>
+        <div id="language-selector">
+          <form id="selector-form">
+          <select></select>
+          </form>
+        </div>
+        <div id="main-tab-wrapper">
+          <ul id="tab-label-list">
+          </ul>
         </div>
         <div id="sidebar-wrapper"></div>
       </div>

@@ -152,6 +152,23 @@ var _ = function(string) {return string};
       $.Widget.prototype._create.call(this);
     },
 
+    _loadCss: function () {
+      var dfd = $.Deferred();
+      var fileName = '/skins/' + Forum.settings.usedSkin + '/css/style.css';
+          console.log('na', fileName);
+      yepnope({
+        test: fileName,
+        nope: fileName,
+        callback: function (url, result, key) {
+          alert(url);
+        },
+        complete: function() {
+          dfd.resolve()
+        },
+      });
+      return dfd.promise();
+    },
+
     _loadWidgetCode: function () {
       var self = this;
       if ($.jStorage.get('cacheKey') != Forum.settings.cacheKey) {
@@ -168,27 +185,12 @@ var _ = function(string) {return string};
         , Forum.codeLoader.load('Forum.widget.dateTime')
         , Forum.codeLoader.load('Forum.socketHandler')
         , Forum.codeLoader.load('Forum.widget.loadingScreen')
+        , self._loadCss()
       ).then(function () {
-        self.loadingScreen = self.element.find('> #loader-wrapper').LoadingScreen({
-          contentWrapper: self.element.find('> #root-content-wrapper'),
-          fadeTime: 1000,
-        }).data('LoadingScreen');
-        self.loadingScreen.show();
-        self.languageSelector = self.root.find('#language-selector #selector-form select');
-        for (key in Forum.settings.languageObj) {
-          selected = '';
-          if (key == Forum.settings.displayLanguage)
-            selected = ' selected="selected"';
-          self.languageSelector.append('<option value="' + key + '"' +  selected + '>' + Forum.settings.languageObj[key] + '</option>');
-        }
-        self.languageSelector.bind('change', function() { self._changeLanguage.call() });
-        self._changeLanguage();
-        self.myWidgets.backgroundChanger = $('body > div#page-wrapper').BackgroundChanger({
-          bgImageArray: Forum.settings.bgImageArray,
-          fadeTime: 3000,
-          changeTime: 5 * 60 * 1000,
-        }).data('BackgroundChanger');
-        self.myWidgets.tabsWidget = self.root.find('> div#tabs-wrapper').ForumTabs().data('ForumTabs');
+        self._initLoadingScreen();
+        self._initLanguageSelector();
+        self._initBackgroundChanger();
+        self._initForumTabs();
         if (Forum.settings.userSettings.useBackgrounds) {
           $.when(
             self.myWidgets.backgroundChanger.change()
@@ -202,7 +204,44 @@ var _ = function(string) {return string};
       });
     },
 
-    _createContinue: function() {
+    _initLoadingScreen: function () {
+      var self = this;
+      this.loadingScreen = this.element.find('> #loader-wrapper').LoadingScreen({
+        contentWrapper: self.root,
+        fadeTime: 1000,
+      }).data('LoadingScreen');
+      this.loadingScreen.show();
+    },
+
+    _initLanguageSelector: function () {
+      var self = this;
+      this.languageSelector = this.root.find('#language-selector #selector-form select');
+      for (key in Forum.settings.languageObj) {
+        selected = '';
+        if (key == Forum.settings.displayLanguage)
+          selected = ' selected="selected"';
+        self.languageSelector.append('<option value="' + key + '"' +  selected + '>' + Forum.settings.languageObj[key] + '</option>');
+      }
+      this.languageSelector.bind('change', function() {
+        self._changeLanguage();
+      });
+      this._changeLanguage();
+    },
+
+    _initBackgroundChanger: function () {
+      this.myWidgets.backgroundChanger = $('body > div#page-wrapper').BackgroundChanger({
+        bgImageArray: Forum.settings.bgImageArray,
+        fadeTime: 3000,
+        changeTime: 5 * 60 * 1000,
+      }).data('BackgroundChanger');
+    },
+
+    _initForumTabs: function () {
+      // Init the tabs
+      this.myWidgets.forumTabs = this.root.find('> div#main-tab-wrapper').ForumTabs().data('ForumTabs');
+    },
+
+    _createContinue: function () {
       var self = this;
       this.loadingScreen.hide();
     },
