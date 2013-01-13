@@ -5,8 +5,8 @@
     _create: function() {
       this.self = this;
       Forum.widgetInstances.tabsWidget = this;
-      this.root = $(this.element.find('> div#contentHolder'))
-      this.tabHolder = this.root.find('> div#mainTab');
+      this.root = $(this.element.find('> div#content-wrapper'))
+      this.tabHolder = this.root.find('> div#main-tab-wrapper');
       this.tabHolder.tabs().find(".ui-tabs-nav").sortable({ axis: "x" });
       this.tabHolder.tabs({
         show: function() {
@@ -22,6 +22,7 @@
     },
 
     launchTab: function(tabId, options) {
+        console.log(tabId, options);
       var self = this;
       $.when(
         Forum.codeLoader.load('Forum.widget.' + options['widgetName'])
@@ -86,8 +87,8 @@
           dataType: 'json',
         })
       ).then(function(guiStateObj){
-        for (var tabId in guiStateObj['tabList']) {
-          self.launchTab(tabId, guiStateObj['tabList'][tabId])
+        for (var tabId in guiStateObj.tabList) {
+          self.launchTab(tabId, guiStateObj.tabList[tabId])
         }
       });
     },

@@ -80,7 +80,7 @@
     load: function (imageSrc) {
       var self = this;
       if (typeof self._loadImageCache[imageSrc] === "undefined") {
-        self._loadImageCache[imageSrc] = $.Deferred();
+        this._loadImageCache[imageSrc] = $.Deferred();
 
         preloader         = new Image();
         preloader.onload  = function() { self._imageLoaded(this) };
@@ -90,14 +90,14 @@
 //          this._imageLoaded(preloader);
 
       }
-      return self._loadImageCache[imageSrc].promise();
+      return this._loadImageCache[imageSrc].promise();
     },
 
     change: function() {
       var self = this;
       self._actualImageNumber = 1 - self._actualImageNumber;
       var dfd = $.Deferred();
-      var src = self.options.bgImageArray[self._selected];
+      var src = self.options.bgImageArray[this._selected];
       $.when(
         self.load(src)
       ).then(function(infoObj) {

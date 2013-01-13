@@ -5,8 +5,6 @@ $forum->checkSession();
 $sessionObj = \Forum\Session::getInstance();
 $currentUser = \Forum\User::getById($sessionObj->getUserId());
 $currentUser->getSettingsObject();
-$dateTimeZoneObj = new DateTimeZone(ini_get('date.timezone'));
-$backgroundImageObj = new \Forum\BackgroundImages();
 
 ?>
 <!doctype html>
@@ -16,7 +14,7 @@ $backgroundImageObj = new \Forum\BackgroundImages();
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="//raw.github.com/andris9/jStorage/master/jstorage.js"></script>
+    <script type="text/javascript" src="/js/jstorage/jstorage.js"></script>
     <script type="text/javascript" src="/js/json/json2.js"></script>
     <script type="text/javascript" src="/js/jsgettext/Gettext.js"></script>
     <script type="text/javascript" src="/js/sprintf.js"></script>
@@ -27,14 +25,6 @@ $backgroundImageObj = new \Forum\BackgroundImages();
     <script type="text/javascript" src="/js/app.js"></script>
     <script type="text/javascript">
       Forum.settings.apiHost = '<?php print $forum->configOptions->apiHost?>';
-      Forum.settings.displayLanguage = '<?php print $currentUser->getLanguage()?>';
-      Forum.settings.cacheKey = '<?php print $forum->configOptions->cacheKey?>';
-      Forum.settings.languageObj = <?php print json_encode($forum->configOptions->languageArray)?>;
-      Forum.settings.usedSkin = '<?php print $currentUser->getUsedSkin()?>';
-      Forum.settings.timeZoneDiff = <?php print $dateTimeZoneObj->getOffset(new DateTime('now', new DateTimeZone('GMT'))) / 60?>;
-      Forum.settings.bgImageArray = <?php print json_encode($backgroundImageObj->getSource())?>;
-      Forum.settings.userSettings = <?php print json_encode($sessionObj->getSettings())?>;
-      Forum.settings.socketServerUrl = '<?php print $forum->configOptions->socketServerUrl?>';
     </script>
     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" type="text/css" />
     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1/themes/pepper-grinder/jquery-ui.css" type="text/css" />
@@ -42,27 +32,26 @@ $backgroundImageObj = new \Forum\BackgroundImages();
     <link rel="stylesheet" href="/skins/<?php print $currentUser->getUsedSkin()?>/css/style.css" type="text/css" />
   </head>
   <body>
-    <div id="pageHolder">
-      <div id="loader">
+    <div id="page-wrapper">
+      <div id="loader-wrapper">
         <?php include($_SERVER['DOCUMENT_ROOT'] . '/skins/' . $currentUser->getUsedSkin() . '/html/loaderTemplate.html')?>
       </div>
-      <div id="mainContentHolder">
+      <div id="root-content-wrapper">
         <div></div>
-        <div id="tabsHolder">
-          <div></div>
-          <div id="languageSelectorHolder">
-            <form id="languageSelectorForm">
+        <div id="tabs-wrapper">
+          <div id="language-selector">
+            <form id="selector-form">
             <select></select>
             </form>
           </div>
-          <div id="contentHolder">
-            <div id="mainTab">
-              <ul id="tabList">
+          <div id="content-wrapper">
+            <div id="main-tab-wrapper">
+              <ul id="tab-list">
               </ul>
             </div>
           </div>
         </div>
-        <div id="sidebarHolder"></div>
+        <div id="sidebar-wrapper"></div>
       </div>
     </div>
   </body>

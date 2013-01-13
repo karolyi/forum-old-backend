@@ -162,6 +162,26 @@ class Forum {
           return;
         }
       }
+    } elseif ($requestArray[0] == 'settings') {
+      if (isset($requestArray[1]) && $requestArray[1] != '') {
+        if ($requestArray[1] == 'defaults') {
+          $sessionObj = \Forum\Session::getInstance();
+          $userObj = \Forum\User::getById($sessionObj->getUserId());
+          $dateTimeZoneObj = new DateTimeZone(ini_get('date.timezone'));
+          $backgroundImageObj = new \Forum\BackgroundImages();
+          $returnArray = array (
+            'displayLanguage' => $userObj->getLanguage(),
+            'cacheKey' => $this->configOptions->cacheKey,
+            'languageObj' => $this->configOptions->languageArray,
+            'usedSkin' => $userObj->getUsedSkin(),
+            'timeZoneDiff' => $dateTimeZoneObj->getOffset(new DateTime('now', new DateTimeZone('GMT'))) / 60,
+            'bgImageArray' => $backgroundImageObj->getSource(),
+            'userSettings' => $sessionObj->getSettings(),
+            'socketServerUrl' => $this->configOptions->socketServerUrl,
+          );
+          print json_encode($returnArray);
+        }
+      }
     }
   }
 }

@@ -9,7 +9,7 @@ class BackgroundImages {
   }
 
   function getSource() {
-    $fileDescriptor = opendir($_SERVER['DOCUMENT_ROOT'] . '/skins/' . $this->usedSkin . '/images/backgrounds');
+    $fileDescriptor = opendir(__DIR__ . '/../../frontend/www/skins/' . $this->usedSkin . '/images/backgrounds');
     $pathArray = array();
     while (($file = readdir($fileDescriptor)) !== false) {
       if ($file != '.' && $file != '..')
