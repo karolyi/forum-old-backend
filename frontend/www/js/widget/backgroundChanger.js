@@ -1,17 +1,23 @@
 (function($) {
   Forum.widget.backgroundChanger = {
-    _loadImageCache: new Object(),
-    _imageAspectsObj: new Object(),
-    _selected: null,
-    _selectedBefore: null,
-    _resizeTimeoutId: null,
-    _changeIntervalId: null,
-    _started: false,
-    _imageObjArray: new Array(),
-    _actualImageNumber: 1,
+    options: {
+      bgImageArray: Forum.settings.bgImageArray || [],
+      fadeTime: 3000,
+      changeTime: 5 * 60 * 1000,
+      fullWindowBackground: false,
+    },
 
     _create: function() {
       var self = this;
+      this._loadImageCache = new Object();
+      this._imageAspectsObj = new Object();
+      this._selected = null;
+      this._selectedBefore = null;
+      this._resizeTimeoutId = null;
+      this._changeIntervalId = null;
+      this._started = false;
+      this._imageObjArray = new Array();
+      this._actualImageNumber = 1;
       Forum.widgetInstances.backgroundChanger = this;
 //      if (Forum.settings.userSettings.useBackgrounds)
       if (!this.element.find('> img#backgroundImage').length) {
@@ -23,7 +29,9 @@
         this.element.append(self._imageObjArray[1]);
         this.element.append(self._backgroundColorHolder);
       }
-      $(window).resize(function() {self.prepareResize()})
+      $(window).resize(function() {
+        self.prepareResize();
+      });
       this.nextRandom();
       $.Widget.prototype._create.call(this);
     },
@@ -34,12 +42,6 @@
     },
 
     start: function() {
-    },
-
-    options: {
-      bgImageArray: Forum.settings.bgImageArray || [],
-      fadeTime: 3000,
-      changeTime: 5 * 60 * 1000,
     },
 
     _getSrc: function(url) {
@@ -121,9 +123,13 @@
         var infoObj = self._imageAspectsObj[src];
       }
       if (infoObj) {
-        //console.log(self.element);
-        var elementHeight = self.element.height();
-        var elementWidth = self.element.width();
+        if (this.options.fullWindowBackground) {
+          var elementHeight = $(window).height();
+          var elementWidth = $(window).width();
+        } else {
+          var elementHeight = self.element.height();
+          var elementWidth = self.element.width();
+        }
         // Height goes 100%
         var multiplicator = elementHeight / infoObj['origHeight'];
         var width = infoObj['origWidth'] * multiplicator;
@@ -134,17 +140,17 @@
           width = infoObj['origWidth'] * multiplicator;
           height = infoObj['origHeight'] * multiplicator;
         }
-        self._imageObjArray[self._actualImageNumber].attr('height', height);
-        self._imageObjArray[self._actualImageNumber].attr('width', width);
+        this._imageObjArray[self._actualImageNumber].attr('height', height);
+        this._imageObjArray[self._actualImageNumber].attr('width', width);
       }
     },
 
     prepareResize: function() {
       var self = this;
-      if (self._resizeTimeoutId) {
+      if (this._resizeTimeoutId) {
         clearTimeout(self._resizeTimeoutId);
       }
-      self._resizeTimeoutId = setTimeout(function() {
+      this._resizeTimeoutId = setTimeout(function() {
         self.resize();
         self._resizeTimeoutId = null;
       }, 0);
@@ -156,10 +162,10 @@
       if (backgroundImagesLength > 1) {
         while(self._selected === self._selectedBefore)
           self._selected = Math.floor(Math.random() * backgroundImagesLength);
-        self._selectedBefore = self._selected;
+        this._selectedBefore = self._selected;
       } else {
-        self._selected = 0;
-        self._selectedBefore = 0;
+        this._selected = 0;
+        this._selectedBefore = 0;
       }
     },
 

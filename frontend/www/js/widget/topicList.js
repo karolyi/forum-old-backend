@@ -3,6 +3,7 @@
     options: {
       tabLabel: $(this.element).siblings('ul#tabList').find('> li > a[href="#topicList"]'),
       showArchived: false,
+      tabElement: $('<li/>'),
     },
 
     _create: function() {

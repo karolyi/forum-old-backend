@@ -21,6 +21,8 @@ var _ = function(string) {return string};
       this.dfd = $.Deferred();
       $.ajax({
         url: Forum.settings.apiHost + '/settings/defaults',
+        // Firefox workaround lol
+        dataType: 'json',
         success: function (data) {
           self._extendDefaults(data);
         },
@@ -228,6 +230,7 @@ var _ = function(string) {return string};
         bgImageArray: Forum.settings.bgImageArray,
         fadeTime: 3000,
         changeTime: 5 * 60 * 1000,
+        fullWindowBackground: true,
       }).data('BackgroundChanger');
     },
 
