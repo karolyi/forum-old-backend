@@ -175,6 +175,7 @@ var _ = function(string) {return string};
         Forum.settings.reloadCache = true;
       }
       $.when(
+        // Models have to be loaded first, so that we can use them in the controllers
         Forum.codeLoader.load('Forum.model.User')
         , Forum.codeLoader.load('Forum.model.Topic')
         , Forum.codeLoader.load('Forum.controller.user')
@@ -240,8 +241,8 @@ var _ = function(string) {return string};
     },
 
     _createContinue: function () {
-      var self = this;
       this.loadingScreen.hide();
+//      console.log('_createContinue');
     },
 
     _changeLanguage: function() {

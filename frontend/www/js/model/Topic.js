@@ -10,7 +10,6 @@
       'ownerId',
       'disabled',
       'adminOnly',
-      'groupId',
       'votingEnabled',
       'replyTo',
       'truncateAt',
@@ -20,11 +19,13 @@
       'currCommentUniqId',
       'currParsedCommentText',
       'descriptionParsed',
+      'groupId',
+      'slug',
     ];
     this._init(options);
   };
 
-  Topic.prototype.set = function(key, value) {
+  Topic.prototype._set = function(key, value) {
     if (value === undefined)
       return;
     if (this._unsetValues.indexOf(key) == -1)
@@ -37,7 +38,7 @@
   Topic.prototype._init = function(options) {
     if (typeof options === 'object')
       for (var key in options)
-        this.set(key, options[key]);
+        this._set(key, options[key]);
   };
 
   Forum.model.Topic = Topic;

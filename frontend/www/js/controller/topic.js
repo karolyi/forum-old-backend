@@ -52,7 +52,7 @@
           id: id,
         });
       for (var key in options)
-        this._topicStore[id].set(key, options[key]);
+        this._topicStore[id]._set(key, options[key]);
       return this._topicStore[id];
     },
   };

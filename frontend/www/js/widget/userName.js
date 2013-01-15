@@ -64,10 +64,13 @@
         $.Forum.UserName.instances.splice(elementIndex, 1);
     },
   }
+  
   $.widget('Forum.UserName', Forum.widget.userName);
+
   $.extend($.Forum.UserName, {
     instances: new Array(),
   });
+
   Forum.socketHandler.subscribe('userChange', function(userObj) {
     Forum.controller.user.set(userObj);
     $.Forum.UserName.instances.forEach(function(element) {

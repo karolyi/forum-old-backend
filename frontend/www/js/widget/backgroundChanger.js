@@ -17,12 +17,12 @@
       this._changeIntervalId = null;
       this._started = false;
       this._imageObjArray = new Array();
-      this._actualImageNumber = 1;
+      this._actualImageNumber = 0;
       Forum.widgetInstances.backgroundChanger = this;
 //      if (Forum.settings.userSettings.useBackgrounds)
       if (!this.element.find('> img#backgroundImage').length) {
         // Create the image holder
-        self._imageObjArray[0] = $('<img/>').attr('id', 'background-image').attr('src', '');
+        self._imageObjArray[0] = $('<img/>').attr('id', 'background-image').attr('src', '').hide();
         self._imageObjArray[1] = $('<img/>').attr('id', 'background-image').attr('src', '').hide();
         self._backgroundColorHolder = $('<div id="background-color"/>')
         this.element.append(self._imageObjArray[0]);
@@ -30,7 +30,7 @@
         this.element.append(self._backgroundColorHolder);
       }
       $(window).resize(function() {
-        self.prepareResize();
+        self._onResizeWindow();
       });
       this.nextRandom();
       $.Widget.prototype._create.call(this);
@@ -70,10 +70,10 @@
     startChanging: function(timeOut) {
       var self = this;
       if (timeOut === undefined)
-        timeOut = self.options.changeTime;
-      if (self._changeIntervalId)
-        clearInterval(self._changeIntervalId);
-      self._changeIntervalId = setInterval(function() {
+        timeOut = this.options.changeTime;
+      if (this._changeIntervalId)
+        clearInterval(this._changeIntervalId);
+      this._changeIntervalId = setInterval(function() {
         self.nextRandom();
         self.change();
       }, timeOut);
@@ -103,13 +103,15 @@
       $.when(
         self.load(src)
       ).then(function(infoObj) {
+        // We don't need to wait for the picture to fade in
+        dfd.resolve();
         self._imageObjArray[self._actualImageNumber].removeAttr('src');
         self._imageObjArray[self._actualImageNumber].attr('src', '');
         self.resize(infoObj);
         self._imageObjArray[self._actualImageNumber].attr('src', infoObj['src']);
         self._imageObjArray[1 - self._actualImageNumber].fadeOut(self.options.fadeTime)
         self._imageObjArray[self._actualImageNumber].fadeIn(self.options.fadeTime, function() {
-          dfd.resolve();
+//          dfd.resolve();
         });
       });
       return dfd.promise();
@@ -145,7 +147,7 @@
       }
     },
 
-    prepareResize: function() {
+    _onResizeWindow: function() {
       var self = this;
       if (this._resizeTimeoutId) {
         clearTimeout(self._resizeTimeoutId);
@@ -157,12 +159,11 @@
     },
 
     nextRandom: function() {
-      var self = this;
-      var backgroundImagesLength = self.options.bgImageArray.length;
+      var backgroundImagesLength = this.options.bgImageArray.length;
       if (backgroundImagesLength > 1) {
-        while(self._selected === self._selectedBefore)
-          self._selected = Math.floor(Math.random() * backgroundImagesLength);
-        this._selectedBefore = self._selected;
+        while(this._selected === this._selectedBefore)
+          this._selected = Math.floor(Math.random() * backgroundImagesLength);
+        this._selectedBefore = this._selected;
       } else {
         this._selected = 0;
         this._selectedBefore = 0;

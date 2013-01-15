@@ -9,13 +9,21 @@
     options: {
       contentWrapper: $('<div/>'),
       fadeTime: 1000,
+      showOnLoad: false,
     },
 
     _create: function () {
+      var self = this;
       this.loaderDivLoaded = false;
       this.shownOnce = false;
       this.showDeferredObj = $.Deferred().resolve();
       this.hideDeferredObj = $.Deferred().resolve();
+      if (this.options.showOnLoad) {
+        $.when(self._loadTemplate())
+        .then(function () {
+          self._showImmediately();
+        });
+      }
     },
 
     _loadTemplate: function () {
@@ -37,6 +45,11 @@
         dfd.resolve();
       }
       return dfd.promise();
+    },
+
+    _showImmediately: function () {
+      this.options.contentWrapper.hide();
+      this.element.show();
     },
 
     _realShow: function () {

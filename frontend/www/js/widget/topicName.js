@@ -1,5 +1,30 @@
 (function($) {
   Forum.widget.topicName = {
+    options: {
+      id: null,
+      // The topic object can be directly given, so the widget wont launch a load request when the topic object is not fully loaded
+      topicObj: null,
+      click: null,
+      display: 'htmlName',
+      /**
+       * Except for the content, all other object variables are passed to the qTip2 initialization. So, for example:
+       *
+       * tooltip: {
+       *   id: 'topicName',
+       *   contentId: 'htmlName', // The id in the topic object for the content ...
+       *   content: {} // ... or the normal content object
+       *   position: {
+       *     my: 'left center',
+       *     at: 'right center',
+       *   },
+       *   style: {
+       *     classes: 'ui-tooltip-shadow ui-tooltip-rounded ui-tooltip-light ui-tooltip-forum',
+       *   },
+       * }
+       */
+      tooltip: null,
+    },
+
     _create: function() {
       var self = this;
       this.element.html('<img src="/skins/' + Forum.settings.usedSkin + '/images/ajax-loader-small.gif" alt="' + _('Loading, please wait ...') +  '" title="' + _('Loading, please wait ...') +  '"/>');
@@ -65,31 +90,6 @@
           });
         }
       }
-    },
-
-    options: {
-      id: null,
-      // The topic object can be directly given, so the widget wont launch a load request when the topic object is not fully loaded
-      topicObj: null,
-      click: null,
-      display: 'htmlName',
-      /**
-       * Except for the content, all other object variables are passed to the qTip2 initialization. So, for example:
-       *
-       * tooltip: {
-       *   id: 'topicName',
-       *   contentId: 'htmlName', // The id in the topic object for the content ...
-       *   content: {} // ... or the normal content object
-       *   position: {
-       *     my: 'left center',
-       *     at: 'right center',
-       *   },
-       *   style: {
-       *     classes: 'ui-tooltip-shadow ui-tooltip-rounded ui-tooltip-light ui-tooltip-forum',
-       *   },
-       * }
-       */
-      tooltip: null,
     },
 
     destroy: function() {

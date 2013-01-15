@@ -6,27 +6,29 @@ body {
   font-family: "HelveticaNeue", "Helvetica Neue", Verdana, Helvetica, Arial, sans-serif;
   font-size: 14px;
 }
-#main-tab-wrapper {
-}
 #tabs-wrapper {
   min-height: 100%;
   min-width: 100%;
 }
-body > div#page-wrapper > div#loader-wrapper,
-body > div#page-wrapper > div#root-content-wrapper {
+body > #page-wrapper > #loader-wrapper,
+body > #page-wrapper > #root-content-wrapper {
   display: none;
 }
-#myLoaderDiv {
+#content-wrapper {
+  visible: hidden; /* The loader will unhide it */
+}
+
+#loader-table-wrapper {
   background-color: #FFF;
   filter:alpha(opacity=80);
   -moz-opacity: 0.8;
   opacity: 0.8;
   height: 100%;
 }
-#myLoaderDiv table,
-#myLoaderDiv table tbody,
-#myLoaderDiv table tbody tr,
-#myLoaderDiv table tbody tr td {
+#loader-table-wrapper table,
+#loader-table-wrapper table tbody,
+#loader-table-wrapper table tbody tr,
+#loader-table-wrapper table tbody tr td {
   font-family: "HelveticaNeue", "Helvetica Neue", Verdana, Helvetica, Arial, sans-serif;
   font-size: 14px;
   height: 100%;
@@ -38,7 +40,7 @@ body > div#page-wrapper > div#root-content-wrapper {
   position: relative;
   min-height: 300px;
 }
-.frame {
+.topic-index-group-wrapper {
   margin-top: 1em;
   margin-bottom: 1em;
   border: 2px solid #ccc;
@@ -49,22 +51,13 @@ body > div#page-wrapper > div#root-content-wrapper {
   opacity: 0.8;
   position: relative;
 }
-.topicGroup #topicTable {
+.topic-index-group-wrapper .topic-index-header {
   padding: 0;
   margin: 0;
   min-width: 500px;
   width: 100%;
   border: 0;
 }
-.topicGroup #topicTable #topicName{
-}
-.topicGroup #topicTable #commentCount {
-}
-.topicGroup #topicTable #lastCommentTime {
-}
-.topicGroup #topicTable #currCommentOwnerId {
-}
-
 .ui-widget {
   font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, Verdana, Arial, sans-serif;
   font-size: 14px;
@@ -79,28 +72,46 @@ body > div#page-wrapper > div#root-content-wrapper {
   -moz-opacity: 0.8;
   opacity: 0.8;
 }
-.topicGroupName {
-  text-align:center;
+.topic-group-label {
+  text-align: center;
   font-weight: bold;
 }
-div.topicGroup table#topicTable {
+.topic-group-name-wrapper {
+  font-size: 1.5em;
+  text-align: center;
+}
+
+.topic-list-element,
+.topic-index-header {
+  width: 100%;
   border-collapse: collapse;
 }
-div#frame table#topicTable tbody tr#topicHolder:hover {
-  background-color:beige;
+.topic-list-element .name,
+.topic-index-header .name {
+  width: 40%;
 }
-div#frame table#topicTable tbody tr#topicHolder {
-  cursor: default;
-  height: 30px;
+.topic-list-element .comment-count,
+.topic-index-header .comment-count {
+  width: 20%;
+  text-align: center;
 }
-table#topicTable tbody tr#topicHolder td#topicName,
-table#topicTable tbody tr#topicHolder td#currCommentOwnerId {
-  cursor: pointer;
+.topic-list-element .last-comment-time,
+.topic-index-header .last-comment-time {
+  width: 20%;
+  text-align: center;
 }
-div.topicGroup table#topicTable tbody tr#topicHolder td#topicName:hover,
-div.topicGroup table#topicTable tbody tr#topicHolder td#currCommentOwnerId:hover {
-  text-decoration: underline;
+.topic-list-element .last-commenter-name,
+.topic-index-header .last-commenter-name {
+  width: 20%;
+  text-align: center;
 }
+.topic-list-element tr:hover {
+  background-color: beige;
+}
+
+
+
+
 .ui-tooltip-forum {
   font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, Verdana, Arial, sans-serif;
   font-size: 12px;
@@ -110,23 +121,22 @@ div.topicGroup table#topicTable tbody tr#topicHolder td#currCommentOwnerId:hover
 .ui-tooltip-forum img {
   max-width: 250px;
 }
-#archivedTopicsLoaderButton {
-}
 
-div#background-color,
-img#background-image {
+#background-color,
+#background-image {
   top: 0;
   left: 0;
 }
-div#background-color {
+#background-color {
   position: absolute;
   background-color: white;
   z-index: -5001;
   bottom: 0;
   right: 0;
 }
-img#background-image {
+#background-image {
   position: fixed;
   z-index: -5000;
 }
+
 
