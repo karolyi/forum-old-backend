@@ -207,6 +207,7 @@ var _ = function(string) {return string};
       this.loadingScreen = this.element.find('> #loader-wrapper').LoadingScreen({
         contentWrapper: self.root,
         fadeTime: 1000,
+        showImmediately: true,
       }).data('LoadingScreen');
       this.loadingScreen.show();
     },
@@ -290,6 +291,7 @@ var _ = function(string) {return string};
 })(jQuery);
 
 $(document).ready(function() {
+  // For API cookies
   $.ajaxSetup({
     xhrFields: {
       withCredentials: true,

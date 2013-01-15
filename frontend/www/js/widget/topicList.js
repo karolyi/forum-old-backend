@@ -27,7 +27,7 @@
 
     _initLoadingScreen: function () {
       var self = this;
-      this.loadingScreen = this.element.find('> #loader-wrapper').LoadingScreen({
+      this.loadingScreen = this.element.find('#loader-wrapper').LoadingScreen({
         contentWrapper: self.root,
         fadeTime: 1000,
       }).data('LoadingScreen');

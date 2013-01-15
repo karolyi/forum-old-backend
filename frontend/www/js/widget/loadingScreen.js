@@ -9,21 +9,17 @@
     options: {
       contentWrapper: $('<div/>'),
       fadeTime: 1000,
-      showOnLoad: false,
+      showImmediately: false,
     },
-
+// SERIOUS FIXME HERE
     _create: function () {
       var self = this;
       this.loaderDivLoaded = false;
       this.shownOnce = false;
       this.showDeferredObj = $.Deferred().resolve();
       this.hideDeferredObj = $.Deferred().resolve();
-      if (this.options.showOnLoad) {
-        $.when(self._loadTemplate())
-        .then(function () {
-          self._showImmediately();
-        });
-      }
+      if (this.options.showImmediately)
+        this._showImmediately();
     },
 
     _loadTemplate: function () {
@@ -33,7 +29,7 @@
         $.when(
           Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/loaderTemplate.html')
         ).then(function(loaderDivContent) {
-          self.element.html(loaderDivContent);
+          self.element.append(loaderDivContent);
           self.loaderDivLoaded = true;
           if (!self.shownOnce) {
             self.initTexts();
@@ -48,6 +44,7 @@
     },
 
     _showImmediately: function () {
+      this._loadTemplate();
       this.options.contentWrapper.hide();
       this.element.show();
     },
