@@ -14,8 +14,11 @@ body > #page-wrapper > #loader-wrapper,
 body > #page-wrapper > #root-content-wrapper {
   display: none;
 }
+#loader-wrapper {
+  min-height: 60px;
+}
 #content-wrapper {
-  visible: hidden; /* The loader will unhide it */
+  display: none; /* The loader will unhide it */
 }
 
 #loader-table-wrapper {

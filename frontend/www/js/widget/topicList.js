@@ -14,8 +14,7 @@
       this.topicGroupInstanceArray = new Object();
       this._initLoadingScreen();
       $.when(
-        self.loadingScreen.show()
-        , Forum.codeLoader.load('Forum.widget.topicName')
+        Forum.codeLoader.load('Forum.widget.topicName')
         , Forum.codeLoader.load('Forum.model.Topic')
         , Forum.codeLoader.load('Forum.controller.topic')
         , Forum.codeLoader.load('Forum.widget.userName')
@@ -30,8 +29,8 @@
       this.loadingScreen = this.element.find('#loader-wrapper').LoadingScreen({
         contentWrapper: self.root,
         fadeTime: 1000,
+        showImmediately: true,
       }).data('LoadingScreen');
-      this.loadingScreen.show();
     },
 
     loadTopics: function() {

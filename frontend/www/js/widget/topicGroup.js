@@ -24,6 +24,7 @@
         // Just show the loader
         $.when(
           Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/topicsLoaderTemplate.html')
+          , this.loadingScreen.show()
         ).then(function(topicsLoaderTemplate) {
           self.root.append(topicsLoaderTemplate);
           var loaderButton = self.root.find('#button-topics-loader').button({
@@ -34,7 +35,7 @@
             self._loadTopics();
           });
           self.buttonsArray.push(loaderButton);
-//          self.loadingScreen.hide();
+          self.loadingScreen.hide();
         });
       }
     },
@@ -46,7 +47,6 @@
         contentWrapper: self.root,
         fadeTime: 1000,
       }).data('LoadingScreen');
-//      this.loadingScreen.show();
     },
 
     printTopics: function() {
@@ -78,7 +78,7 @@
           });
         }
         self._changeLanguage();
-//        self.loadingScreen.hide();
+        self.loadingScreen.hide();
       });
     },
 

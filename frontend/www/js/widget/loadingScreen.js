@@ -4,6 +4,8 @@
    * Widget handler for the loader overlay
    *
    */
+  // FIXME this is for testing only, remove it when fixed
+  window.testCodeDivArray = [];
 
   Forum.widget.loadingScreen = {
     options: {
@@ -11,11 +13,12 @@
       fadeTime: 1000,
       showImmediately: false,
     },
-// SERIOUS FIXME HERE
+
     _create: function () {
       var self = this;
-      this.loaderDivLoaded = false;
+      this.templateDeferObj = $.Deferred();
       this.shownOnce = false;
+      testCodeDivArray.push(this.element[0]);
       this.showDeferredObj = $.Deferred().resolve();
       this.hideDeferredObj = $.Deferred().resolve();
       if (this.options.showImmediately)
@@ -24,23 +27,16 @@
 
     _loadTemplate: function () {
       var self = this;
-      var dfd = $.Deferred();
-      if (!this.loaderDivLoaded) {
-        $.when(
-          Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/loaderTemplate.html')
-        ).then(function(loaderDivContent) {
-          self.element.append(loaderDivContent);
-          self.loaderDivLoaded = true;
-          if (!self.shownOnce) {
-            self.initTexts();
-            self.shownOnce = true;
-          }
-          dfd.resolve();
-        });
-      } else {
-        dfd.resolve();
-      }
-      return dfd.promise();
+      if (this.templateDeferObj.state() == 'resolved')
+        return this.templateDeferObj.promise();
+      $.when(
+        Forum.storage.get('/skins/' + Forum.settings.usedSkin + '/html/loaderTemplate.html')
+      ).then(function(loaderDivContent) {
+        self.element.append(loaderDivContent);
+        self.initTexts();
+        self.templateDeferObj.resolve();
+      });
+      return this.templateDeferObj.promise();
     },
 
     _showImmediately: function () {
@@ -58,10 +54,6 @@
             Forum.widgetInstances.backgroundChanger.resize();
           self.showDeferredObj.resolve();
         });
-        if (!self.shownOnce) {
-          self.initTexts();
-          self.shownOnce = true;
-        }
         self.showDeferredObj.resolve();
       });
     },

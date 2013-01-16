@@ -46,47 +46,68 @@ var _ = function(string) {return string};
 
   Forum.storage = {
     _storage: new Object(),
+    _deferObjs: new Object(),
 
-    deferObj: function(key) {
-      // Function for loading files when not in local storage or in the variable scope
-      this.load = function(key) {
-        var self = this;
-        var dfd = $.Deferred();
-        $.ajax({
-          url: key + '?_=' + (new Date()).getTime(),
-          success: function(data, textStatus, jqXHR) {
-            Forum.storage.set(key, data);
-            dfd.resolve(data);
-          },
-          error: function(jqXHR, textStatus, errorThrown) {
-            console.error(textStatus + ': ', jqXHR, errorThrown);
-          }
-        });
-        return dfd.promise();
-      };
+    _returnFromStorage: function (key) {
+      var dfd = $.Deferred();
+      var value = this._storage[key];
+      if (!key in $.jStorage.storageObj())
+        $.jStorage.set(key, value);
+      dfd.resolve(value);
+      this._deferObjs[key] = dfd;
+      return dfd.promise();
+    },
 
-      return this.load(key);
+    _returnFromJStorage: function (key) {
+      var dfd = $.Deferred();
+      var value = $.storageObj.get(key);
+      this._storage[key] = value;
+      dfd.resolve(value);
+      this._deferObjs[key] = dfd;
+      return dfd.promise();
+    },
+
+    _loadViaAjax: function (key) {
+      var self = this;
+      var dfd = $.Deferred();
+      this._deferObjs[key] = dfd;
+      $.ajax({
+        url: key + '?_=' + (new Date()).getTime(),
+        success: function(data, textStatus, jqXHR) {
+          self.set(key, data);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.error(textStatus + ': ', jqXHR, errorThrown);
+        }
+      });
+      return dfd.promise();
+    },
+
+    load: function(key) {
+      // Try to get from the local storage first
+      if (key in this._storage)
+        return this._returnFromStorage(key);
+      // Not in local storage, check in jStorage
+      if (key in $.jStorage.storageObj())
+        return this._returnFromJStorage(key);
+      // If it doesn't exist in the local storage, nor in jStorage, load it from the server via ajax
+      return this._loadViaAjax(key);
     },
 
     set: function(key, value) {
-      Forum.storage._storage[key] = value;
+      this._storage[key] = value;
       $.jStorage.set(key, value);
+      // Check if there's already a Deferred object for that key
+      if (!key in this._deferObjs)
+        this._deferObjs[key] = $.Deferred();
+      this._deferObjs[key].resolve(value);
     },
 
     get: function(key) {
-      var value = Forum.storage._storage[key];
-      if (!value) {
-        // Key does not exist, load from local storage
-        var value = $.jStorage.get(key);
-        if (value) {
-          // console.log('key in local storage');
-          Forum.storage.set(key, value);
-        } else {
-          // Key not in local storage, load from server
-          return new this.deferObj(key);
-        }
-      }
-      return $.Deferred().resolve(value);
+      if (key in this._deferObjs)
+        return this._deferObjs[key].promise();
+      // If not exists, place a load on it
+      return this.load(key);
     },
   };
 
@@ -148,16 +169,16 @@ var _ = function(string) {return string};
       $.when(
         Forum.settings._onLoadGet()
       ).then(function() {
-        self._loadCss();
         self._loadWidgetCode();
       });
 
       $.Widget.prototype._create.call(this);
     },
 
-    _loadCss: function () {
+    _loadCss: function (noCache) {
+      noCache = noCache || false;
       var fileName = '/skins/' + Forum.settings.usedSkin + '/css/style.css';
-      if (Forum.settings.reloadCache)
+      if (noCache)
         fileName += '?' + (new Date()).getTime();
       this.cssElement = $('<link>', {
         href: fileName,
@@ -174,6 +195,7 @@ var _ = function(string) {return string};
         $.jStorage.set('cacheKey', Forum.settings.cacheKey);
         Forum.settings.reloadCache = true;
       }
+      this._loadCss(Forum.settings.reloadCache);
       $.when(
         // Models have to be loaded first, so that we can use them in the controllers
         Forum.codeLoader.load('Forum.model.User')
@@ -209,7 +231,6 @@ var _ = function(string) {return string};
         fadeTime: 1000,
         showImmediately: true,
       }).data('LoadingScreen');
-      this.loadingScreen.show();
     },
 
     _initLanguageSelector: function () {
